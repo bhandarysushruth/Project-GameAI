@@ -57,41 +57,31 @@ while not done:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # User clicks the mouse. Get the position
             pos = pygame.mouse.get_pos()
-            # Change the x/y screen coordinates to grid coordinates
-            column = pos[0] // CELL_WIDTH
-            row = pos[1] // CELL_HEIGHT
-            print("Click ", pos, "Grid coordinates: ", row, column)
+            print("Click ", pos)
 
             # If a menu item is selected, perform the required action
             if status == "Create Wall":
                 wall = Wall.Wall(pos[0], pos[1], RADIUS)
                 wall_list.append(wall)
-            elif status == "Create Cannon":
-                cannon = Cannon.Cannon(pos[0], pos[1], RADIUS)
-                cannon_list = cannon
             elif status == "Create Land Mine":
                 land_mine = LandMine.LandMine(pos[0], pos[1], RADIUS)
                 landmine_list = land_mine
             elif status == "Create Aquatic Mine":
                 aquamine = AquaticMine.AquaticMine(pos[0], pos[1], RADIUS)
-                aquadmine_list = aquamine
-            # elif status == "Fire Cannon":
-                # If cannon in list was clicked
-                # Call the fire cannon method
+                aquamine_list = aquamine
+            elif status == "Fire Cannon":
+                Cannon.fire_cannon(pos[0], pos[1])
 
-            # # Determine which button was clicked
-            # if column == X and row == Y:        # Create wall
-            #     status = "Create Wall"
-            # elif column == X and row == Y:      # Create cannon
-            #     status = "Create Cannon"
-            # elif column == X and row == Y:      # Create land mine
-            #     status = "Create Land Mine"
-            # elif column == X and row == Y:      # Create aquatic mine
-            #     status = "Create Aquatic Mine"
-            # elif column == X and row == Y:      # Fire cannon
-            #     status = "Fire Cannon"
-            # elif column == X and row == Y:
-            #     status = "None"
+        elif event.type == pygame.KEYDOWN:
+            # Figure out if it was an arrow key. If so adjust speed.
+            if event.key == pygame.K_l:
+                status = "Create Land Mine"
+            elif event.key == pygame.K_a:
+                status = "Create Aquatic Mine"
+            elif event.key == pygame.K_f:
+                status = "Fire Cannon"
+            elif event.key == pygame.K_n:
+                status = "None"
 
 
     # Drawing to screen

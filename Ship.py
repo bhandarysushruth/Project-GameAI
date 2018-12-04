@@ -1,8 +1,8 @@
 import pygame
 import math
 
-DISPLAY_WIDTH = 800
-DISPLAY_HEIGHT = 800
+DISPLAY_WIDTH = 30
+DISPLAY_HEIGHT = 30
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 25, 25)
