@@ -6,16 +6,23 @@ import Cannon
 import LandMine
 import AquaticMine
 import Ship
+import Movement
 
 # Global variables
 DISPLAY_WIDTH = 1440
 DISPLAY_HEIGHT = 875
 RADIUS = 25
-CELL_WIDTH = 100
-CELL_HEIGHT = 100
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 25, 25)
+LCANNON_IMG = pygame.image.load("lcannon.png")
+LCANNON_IMG = pygame.transform.scale(LCANNON_IMG, (50, 50))
+RCANNON_IMG = pygame.image.load("rcannon.png")
+RCANNON_IMG = pygame.transform.scale(RCANNON_IMG, (50, 50))
+GCROSSHAIR = pygame.image.load("greencrosshair.png")
+GCROSSHAIR = pygame.transform.scale(GCROSSHAIR, (15, 15))
+RCROSSHAIR = pygame.image.load("redcross.png")
+RCROSSHAIR = pygame.transform.scale(RCROSSHAIR, (15, 15))
 
 # General game set up
 pygame.init()
@@ -23,14 +30,6 @@ gameDisplay = pygame.display.set_mode((DISPLAY_WIDTH,DISPLAY_HEIGHT))
 pygame.display.set_caption('PROTECT THE CASTLE')
 done = False
 clock = pygame.time.Clock()
-
-# # Create backing graph
-# graph = []
-# for r in range(80):
-#     # Add an empty array that will hold each cell in this row
-#     graph.append([])
-#     for c in range(80):
-#         graph[r].append(0)  # Append a cell
 
 # Setting up mouse info
 pygame.mouse.set_visible(True)
@@ -45,12 +44,34 @@ background = pygame.transform.scale(background, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 # Initializing button  menu
 status = ""
 wall_list = []
-cannon_list = []
+cannon_list = [Cannon.Cannon(540, 410, RADIUS, LCANNON_IMG), Cannon.Cannon(800, 390, RADIUS, RCANNON_IMG)]
+all_sprites_list.add(cannon_list[0])
+all_sprites_list.add(cannon_list[1])
 landmine_list = []
 aquamine_list = []
 
+# Some game functions
+def fire_cannon(x, y, cannon_list):
+    """ Fires a cannon based on where the mouse coordinates currently are; the left side cannon fires
+    if the cursor is to the left of XXX and the right side cannon fires if the cursor is to the right
+    of XXX"""
+
+    # Check which cannon's distance is closest to the seek point
+    cannon_1 = cannon_list[0]
+    cannon_2 = cannon_list[1]
+
+    distance_1 = Movement.calcDistance(cannon_1.x, cannon_1.y, x, y)
+    distance_2 = Movement.calcDistance(cannon_2.x, cannon_2.y, x, y)
+
+    if distance_1 < distance_2:  # cannon_1 is closer to the target
+        return cannon_1, distance_1  # return cannon_1 as cannon to fire from for cannon ball to seek from
+    else:  # cannon_2 is closer to the target
+        return cannon_2, distance_2  # return cannon_2 as cannont to fire from for cannon ball to seek from
+
+
 # --- GAME LOOP --- #
 while not done:
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
@@ -70,7 +91,16 @@ while not done:
                 aquamine = AquaticMine.AquaticMine(pos[0], pos[1], RADIUS)
                 aquamine_list = aquamine
             elif status == "Fire Cannon":
-                Cannon.fire_cannon(pos[0], pos[1])
+                results = fire_cannon(pos[0], pos[1], cannon_list)
+                print(results[0])
+                print(results[1])
+                # Determine if range is valid and update crosshair colour to green
+                if (results[1] <= 450):
+                    player.image = GCROSSHAIR
+                else:
+                    player.image = RCROSSHAIR
+                # Pass in the appropriate cannon's coordinates to seek from and shoot the cannon
+
 
         elif event.type == pygame.KEYDOWN:
             # Figure out if it was an arrow key. If so adjust speed.

@@ -11,7 +11,7 @@ LANDMINE_IMG = pygame.transform.scale(LANDMINE_IMG, (DISPLAY_WIDTH, DISPLAY_HEIG
 class LandMine:
     image = LANDMINE_IMG
 
-    def __init__(self, x, y, radius, ):
+    def __init__(self, x, y, radius):
         self.x = x
         self.y = y
         self.radius = radius
