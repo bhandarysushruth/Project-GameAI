@@ -1,11 +1,12 @@
 import pygame
 
-DISPLAY_WIDTH = 30
-DISPLAY_HEIGHT = 30
+DISPLAY_WIDTH = 15
+DISPLAY_HEIGHT = 15
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 25, 25)
-
+CROSSHAIR = pygame.image.load("redcross.png")
+CROSSHAIR = pygame.transform.scale(CROSSHAIR, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
 class Player(pygame.sprite.Sprite):
     """ Player class that controls actions using the mouse"""
@@ -14,13 +15,8 @@ class Player(pygame.sprite.Sprite):
         # Call the parent class (Sprite) constructor
         super().__init__()
 
-        # Variables to hold the height and width of the block
-        width = 15
-        height = 15
-
-        # Create an image of the player, and fill it with a color.
-        self.image = pygame.Surface([width, height])
-        self.image.fill(WHITE)
+        # Set the crosshair image
+        self.image = CROSSHAIR
 
         # Fetch the rectangle object that has the dimensions of the image
         self.rect = self.image.get_rect()
