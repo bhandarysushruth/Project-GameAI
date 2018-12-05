@@ -1,0 +1,89 @@
+project ideas :
+---------------
+
+1. protect the castle :
+
+-- protect the castle against an army.
+-- army controlled by computer and can use ai algos like path finding, path following , obstacle avoidance 
+-- castle army controlled by the player. can build walls or obstacles to stop ethe ai army and this army can then use ai basics to move around the obstacles and reach the target castle
+-- make crude cannons/weapons maybe?
+
+-- waves of opponents. one wave stronger than the other. you have a specific army and weapons to use(tanks, cannons, etc.). reserve the more powerful weapons for later.
+
+-- castle on an island maybe? player army has its own ships etc. ai army also has ships . diff kind of ships, some stronger than the other.
+
+--------------------------------------------------------------------------
+
+OBJECTIVE:
+-- Prevent the AI from conquering the castle. (5 enemy soldiers/knights reaching the main castle implies castle is conquered)
+
+
+ENVIRONMENT
+------------------
+-- castle in the center
+-- castle has a surrounding circular wall
+-- wall has 3 doors that you can enter through
+-- castle is located on the main island which is surrounded by water
+-- enemy can enter the island through the water or through land via a bridge from island 2.
+-- island 3 is enemy territory which might have enemy cannons (use os island 3 still undecided)
+
+
+Weapons/ Tools/ Logistics
+-------------------------
+
+* player gets a limited number of weapons to begin with
+
+1. cannon :
+- sends a cannon ball from the cannon station to a specified point provided its within the cannon's range
+- destroys all enemy characters within a certain radius of where the cannon ball falls
+
+2. land mines :
+- player can deploy mines at certain places.
+- triggers a blast when an enemy steps on it and destroys everone in the blast radius
+
+3. sea mines:
+- same as a land mine but for the sea and can destroy ships
+
+4. Ships :
+- ships are used to transport soldiers and knights. 
+- ships can only land at a pier where the soldiers are offloaded
+- ships can be destroyed by a cannon with the right aim
+- maybe we could have multiple levels of ships (maybe a higher level ship which can detect sea mines ?)
+
+5. Walls:
+- The player can build a wall to block the enemy from entering 
+- this will slow down the enemy's progress or reduce the strength of the attack since the enemy will lose 5 soldiers before moving ahead
+
+Characters:
+-------------------
+
+1. soldier : 
+- shown as a circle
+- both player and com have soldiers
+- used for attacking other soldiers or bringing down walls 
+- 10 soldiers can bring down a door
+- 5 soldiers can bring down a wall built by the player
+
+2. knight :
+- shown as a concentric circle
+- twice as powerful as a soldier.
+- can take down two soldiers before it dies
+
+
+RULES/ FLOW OF THE GAME:
+--------------------
+
+-- The player has an army of knights and soldiers and a certain amount of weapons/tools to begin with
+-- The enemy will attack in waves with the number of enemies increasing in each wave.
+-- The player can direct his/her army towards the attackers or use the weapons to destroy the enemy soldiers
+
+
+-- 5 soldiers bring down a wall
+-- 10 soldiers bring down a door
+-- a soldier attacks another solier and both die
+-- a knight atatcks 2 soldiers before it dies
+
+
+
+
+
