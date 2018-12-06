@@ -28,7 +28,7 @@ pointerImgRed = pygame.image.load('redcross.png')
 pointerImgRed = pygame.transform.scale(pointerImgRed, (30,30))
 pointerImgRed_rect = pointerImgRed.get_rect()
 
-pointerImgGreen = pygame.image.load('greencrosshair.png')
+pointerImgGreen = pygame.image.load('BlackCross.png')
 pointerImgGreen = pygame.transform.scale(pointerImgGreen, (30,30))
 pointerImgGreen_rect = pointerImgGreen.get_rect()
 
@@ -100,7 +100,7 @@ def fire_cannon(x, y, platform):
 if __name__ == '__main__':
 
     # Setting up mouse info
-    pygame.mouse.set_visible(True)
+    pygame.mouse.set_visible(False)
     cursor_type = 'green'
     #all_sprites_list = pygame.sprite.Group()
 
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     #populating the Game Platform
 
     platform.all_sprites_list = pygame.sprite.Group()
-    platform.all_sprites_list.add(Player.Player())
+    #platform.all_sprites_list.add(Player.Player())
     platform.cannon_list = [Cannon(540, 410, RADIUS, LCANNON_IMG), Cannon(800, 390, RADIUS, RCANNON_IMG)]
     platform.all_sprites_list.add(platform.cannon_list[0])
     platform.all_sprites_list.add(platform.cannon_list[1])
@@ -189,7 +189,7 @@ if __name__ == '__main__':
         if cursor_type == 'red':
             pointerImgRed_rect.center = pygame.mouse.get_pos()
             gameDisplay.blit(pointerImgRed, pointerImgRed_rect)
-        else:
+        elif cursor_type == 'green':
             pointerImgGreen_rect.center = pygame.mouse.get_pos()
             gameDisplay.blit(pointerImgGreen, pointerImgGreen_rect)
 
