@@ -63,6 +63,25 @@ class Blackboard:
 
     def __init__(self, platform):
         self.platform = platform
+        self.platoon_seek_active = False
+        #contains a list of all the active platoon_seeks
+        #each entry in the list is a set which contains the platoon number, target cordinates, team
+        #for example, if you want the player platoon number 1 to move to (100,100), you do
+        # active_platoon_seeks.append((1, 100, 100, 'player'))
+        self.active_platoon_seeks = []
+    
+    def update(self):
+        if self.platoon_seek_active:
+            for seeks in self.active_platoon_seeks:
+                seek_done = platoon_seek(self.platform, seeks[0], seeks[1], seeks[2], seeks[3])
+                if seek_done:
+                    self.active_platoon_seeks.remove(seeks)
+
+            if len(self.active_platoon_seeks) == 0:
+                platoon_seek_active = False
+
+
+
 
 class GamePlatform:
 
@@ -100,7 +119,7 @@ def fire_cannon(x, y, platform):
 if __name__ == '__main__':
 
     # Setting up mouse info
-    pygame.mouse.set_visible(False)
+    pygame.mouse.set_visible(True)
     cursor_type = 'green'
     #all_sprites_list = pygame.sprite.Group()
 
@@ -178,6 +197,12 @@ if __name__ == '__main__':
                     status = "Fire Cannon"
                 elif event.key == pygame.K_n:
                     status = "None"
+                elif event.key == pygame.K_1:
+                    bb.platoon_seek_active = True
+                    bb.active_platoon_seeks.append((1,pos[0],pos[1],'player'))
+                elif event.key == pygame.K_2:
+                    bb.platoon_seek_active = True
+                    bb.active_platoon_seeks.append((2,pos[0],pos[1],'player'))
 
 
         # Drawing to screen
@@ -193,7 +218,7 @@ if __name__ == '__main__':
             pointerImgGreen_rect.center = pygame.mouse.get_pos()
             gameDisplay.blit(pointerImgGreen, pointerImgGreen_rect)
 
-
+        bb.update()
         platform.all_sprites_list.update()
         platform.all_sprites_list.draw(gameDisplay)
         
@@ -202,9 +227,9 @@ if __name__ == '__main__':
         # testing platoon_seek fucntion
 
         #moving platoon number 1
-        platoon_seek(platform, 1, 450, 600, 'player')
+        #platoon_seek(platform, 1, 450, 600, 'player')
         #moving platoon2
-        platoon_seek(platform, 2, 950, 280, 'player')
+        #platoon_seek(platform, 2, 950, 280, 'player')
 
         #-----------------------------------
 

@@ -49,6 +49,7 @@ def object_seek(target, player, vel):
     if calcDistance(target.x, target.y, player.x, player.y) <= vel:
         player.x= target.x
         player.y = target.y
+        return True
 
     
     if (target.x - player.x) == 0:
@@ -78,6 +79,7 @@ def object_seek(target, player, vel):
     player.x+=int(mon_vel_x)
     player.y+=int(mon_vel_y)
 
+    return False
 
 #platoon seek is a seek for the entire platoon
 #The entire platoon moves towards the target object at (seek_x, seek_y)
@@ -99,16 +101,17 @@ def platoon_seek(platform, platoon_number, seek_x, seek_y, team):
 
         for character in platform.playerArmy:
             if character.platoon == platoon_number:
-                object_seek(Soldier(positions[i][0], positions[i][1], 1, 'player'), character, 5)
+                done = object_seek(Soldier(positions[i][0], positions[i][1], 1, 'player'), character, 5)
                 i+=1
 
     elif team == 'enemy':
 
         for character in platform.playerArmy:
             if character.platoon == platoon_number:
-                object_seek(Soldier(positions[i][0], positions[i][1], 1, 'player'), character, 5)
+                done = object_seek(Soldier(positions[i][0], positions[i][1], 1, 'player'), character, 5)
                 i+=1
 
+    return done
 
 
 
