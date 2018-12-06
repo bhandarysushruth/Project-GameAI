@@ -6,6 +6,8 @@ import Cannon
 import LandMine
 import AquaticMine
 import Ship
+import Movement
+
 
 from Army import *
 
@@ -16,6 +18,10 @@ RADIUS = 25
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 25, 25)
+LCANNON_IMG = pygame.image.load("lcannon.png")
+LCANNON_IMG = pygame.transform.scale(LCANNON_IMG, (50, 50))
+RCANNON_IMG = pygame.image.load("rcannon.png")
+RCANNON_IMG = pygame.transform.scale(RCANNON_IMG, (50, 50))
 
 # General game set up
 pygame.init()
@@ -58,19 +64,46 @@ class GamePlatform:
         self.aquamine_list = []
         self.playerArmy = []
         self.enemyArmy = []
+        self.all_sprites_list = []
+
+
+# Some game functions
+def fire_cannon(x, y, platform):
+    """ Fires a cannon based on where the mouse coordinates currently are; the left side cannon fires
+    if the cursor is to the left of XXX and the right side cannon fires if the cursor is to the right
+    of XXX"""
+
+    # Check which cannon's distance is closest to the seek point
+    cannon_1 = platform.cannon_list[0]
+    cannon_2 = platform.cannon_list[1]
+
+    distance_1 = Movement.calcDistance(cannon_1.x, cannon_1.y, x, y)
+    distance_2 = Movement.calcDistance(cannon_2.x, cannon_2.y, x, y)
+
+    if distance_1 < distance_2:  # cannon_1 is closer to the target
+        return cannon_1, distance_1  # return cannon_1 as cannon to fire from for cannon ball to seek from
+    else:  # cannon_2 is closer to the target
+        return cannon_2, distance_2  # return cannon_2 as cannont to fire from for cannon ball to seek from
+
+
 
 
 if __name__ == '__main__':
 
     # Setting up mouse info
     pygame.mouse.set_visible(True)
-    all_sprites_list = pygame.sprite.Group()
-    player = Player.Player()
-    all_sprites_list.add(player)
+    #all_sprites_list = pygame.sprite.Group()
 
     platform = GamePlatform()
     bb= Blackboard(platform)
 
+    #populating the Game Platform
+
+    platform.all_sprites_list = pygame.sprite.Group()
+    platform.all_sprites_list.add(Player.Player())
+    platform.cannon_list = [Cannon.Cannon(540, 410, RADIUS, LCANNON_IMG), Cannon.Cannon(800, 390, RADIUS, RCANNON_IMG)]
+    platform.all_sprites_list.add(platform.cannon_list[0])
+    platform.all_sprites_list.add(platform.cannon_list[1])
 
     # Creating Player Armies
 
@@ -90,11 +123,7 @@ if __name__ == '__main__':
     platform.playerArmy.append(Knight(935,408, 1, 'player'))
     platform.playerArmy.append(Knight(980,408, 1, 'player'))
 
-    
-
-
-
-
+    pos = pygame.get_pos()
 
     # --- GAME LOOP --- #
     while not done:
@@ -117,7 +146,7 @@ if __name__ == '__main__':
                     aquamine = AquaticMine.AquaticMine(pos[0], pos[1], RADIUS)
                     platform.aquamine_list.append(aquamine)
                 elif status == "Fire Cannon":
-                    Cannon.fire_cannon(pos[0], pos[1])
+                    print(fire_cannon(pos[0], pos[1], platform)[0])
 
             elif event.type == pygame.KEYDOWN:
                 # Figure out if it was an arrow key. If so adjust speed.
@@ -133,8 +162,8 @@ if __name__ == '__main__':
 
         # Drawing to screen
         gameDisplay.blit(background, (0, 0))
-        all_sprites_list.update()
-        all_sprites_list.draw(gameDisplay)
+        platform.all_sprites_list.update()
+        platform.all_sprites_list.draw(gameDisplay)
 
 
         # rendering the soldiers on the game screen
