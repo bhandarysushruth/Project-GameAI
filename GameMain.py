@@ -6,7 +6,7 @@ import Cannon
 import LandMine
 import AquaticMine
 import Ship
-import Movement
+from Movement import *
 
 
 from Army import *
@@ -116,14 +116,15 @@ if __name__ == '__main__':
     platform.playerArmy.append(Knight(480,408, 1, 'player'))
 
     #platoon 2
-    platform.playerArmy.append(Soldier(950,400, 1, 'player'))
-    platform.playerArmy.append(Soldier(965,400, 1, 'player'))
-    platform.playerArmy.append(Soldier(950,415, 1, 'player'))
-    platform.playerArmy.append(Soldier(965,415, 1, 'player'))
-    platform.playerArmy.append(Knight(935,408, 1, 'player'))
-    platform.playerArmy.append(Knight(980,408, 1, 'player'))
+    platform.playerArmy.append(Soldier(950,400, 2, 'player'))
+    platform.playerArmy.append(Soldier(965,400, 2, 'player'))
+    platform.playerArmy.append(Soldier(950,415, 2, 'player'))
+    platform.playerArmy.append(Soldier(965,415, 2, 'player'))
+    platform.playerArmy.append(Knight(935,408, 2, 'player'))
+    platform.playerArmy.append(Knight(980,408, 2, 'player'))
 
-    pos = pygame.get_pos()
+
+    pos = pygame.mouse.get_pos()
 
     # --- GAME LOOP --- #
     while not done:
@@ -164,7 +165,17 @@ if __name__ == '__main__':
         gameDisplay.blit(background, (0, 0))
         platform.all_sprites_list.update()
         platform.all_sprites_list.draw(gameDisplay)
+        
+        # random tests ------------------------
 
+        # testing platoon_seek fucntion
+
+        #moving platoon number 1
+        platoon_seek(platform, 1, 450, 600, 'player')
+        #moving platoon2
+        platoon_seek(platform, 2, 950, 280, 'player')
+
+        #-----------------------------------
 
         # rendering the soldiers on the game screen
         for character in platform.playerArmy:

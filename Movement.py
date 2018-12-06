@@ -1,5 +1,6 @@
 import pygame
 import math
+from Army import *
 
 def calcDistance(x1,y1,x2,y2):
     val = (x2-x1)**2
@@ -37,3 +38,82 @@ def seek(x, y, mx, my, mvel):
         mon_vel_y = mvel * math.sin(theta)
 
     return mon_vel_x, mon_vel_y
+
+
+# Just like seek, but here it just takes in the target object and the chasing object
+# and makes changes to the chasing object
+
+def object_seek(target, player, vel):
+
+    # avoiding oscilation at target arrival this will make it land at the target
+    if calcDistance(target.x, target.y, player.x, player.y) <= vel:
+        player.x= target.x
+        player.y = target.y
+
+    
+    if (target.x - player.x) == 0:
+        if (target.y - player.y) > 0:
+            theta = math.radians(90)
+        elif (target.y - player.y) < 0:
+            theta = math.radians(-90)
+        else:
+            theta = math.radians(0)
+
+    else:
+
+        tanVal = (target.y - player.y) / (target.x - player.x)
+        theta = (math.atan(tanVal))
+
+    # right half :
+    if (player.x > target.x):
+        mon_vel_x = vel * math.cos(theta) * -1
+        mon_vel_y = vel * math.sin(theta) * -1
+
+    # left half
+    else:
+
+        mon_vel_x = vel * math.cos(theta)
+        mon_vel_y = vel * math.sin(theta)
+
+    player.x+=int(mon_vel_x)
+    player.y+=int(mon_vel_y)
+
+
+
+
+def platoon_seek(platform, platoon_number, seek_x, seek_y, team):
+
+    i = 0
+    sx=seek_x
+    sy=seek_y
+    positions = [(seek_x,seek_y),(seek_x + 15 ,seek_y), (seek_x,seek_y+15),(seek_x,seek_y-15),(seek_x-15,seek_y),(seek_x+15,seek_y+15)]
+
+    if team == 'player':
+
+        for character in platform.playerArmy:
+            if character.platoon == platoon_number:
+                object_seek(Soldier(positions[i][0], positions[i][1], 1, 'player'), character, 5)
+                i+=1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
