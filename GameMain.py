@@ -2,7 +2,7 @@ import pygame
 
 import Player
 import Wall
-import Cannon
+from Cannon import *
 import LandMine
 import AquaticMine
 import Ship
@@ -22,6 +22,15 @@ LCANNON_IMG = pygame.image.load("lcannon.png")
 LCANNON_IMG = pygame.transform.scale(LCANNON_IMG, (50, 50))
 RCANNON_IMG = pygame.image.load("rcannon.png")
 RCANNON_IMG = pygame.transform.scale(RCANNON_IMG, (50, 50))
+
+# crosshair instead of cursor
+pointerImgRed = pygame.image.load('redcross.png')
+pointerImgRed = pygame.transform.scale(pointerImgRed, (30,30))
+pointerImgRed_rect = pointerImgRed.get_rect()
+
+pointerImgGreen = pygame.image.load('greencrosshair.png')
+pointerImgGreen = pygame.transform.scale(pointerImgGreen, (30,30))
+pointerImgGreen_rect = pointerImgGreen.get_rect()
 
 # General game set up
 pygame.init()
@@ -92,6 +101,7 @@ if __name__ == '__main__':
 
     # Setting up mouse info
     pygame.mouse.set_visible(True)
+    cursor_type = 'green'
     #all_sprites_list = pygame.sprite.Group()
 
     platform = GamePlatform()
@@ -101,7 +111,7 @@ if __name__ == '__main__':
 
     platform.all_sprites_list = pygame.sprite.Group()
     platform.all_sprites_list.add(Player.Player())
-    platform.cannon_list = [Cannon.Cannon(540, 410, RADIUS, LCANNON_IMG), Cannon.Cannon(800, 390, RADIUS, RCANNON_IMG)]
+    platform.cannon_list = [Cannon(540, 410, RADIUS, LCANNON_IMG), Cannon(800, 390, RADIUS, RCANNON_IMG)]
     platform.all_sprites_list.add(platform.cannon_list[0])
     platform.all_sprites_list.add(platform.cannon_list[1])
 
@@ -128,6 +138,15 @@ if __name__ == '__main__':
 
     # --- GAME LOOP --- #
     while not done:
+
+        #checking if cannons are in range to select color of crosshair
+        pos = pygame.mouse.get_pos()
+        if not InCannonRange(platform, pos[0], pos[1], 200):
+            cursor_type = 'red'
+        else:
+            cursor_type = 'green'
+
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
@@ -163,6 +182,18 @@ if __name__ == '__main__':
 
         # Drawing to screen
         gameDisplay.blit(background, (0, 0))
+
+        #displaying crosshairs
+        
+        
+        if cursor_type == 'red':
+            pointerImgRed_rect.center = pygame.mouse.get_pos()
+            gameDisplay.blit(pointerImgRed, pointerImgRed_rect)
+        else:
+            pointerImgGreen_rect.center = pygame.mouse.get_pos()
+            gameDisplay.blit(pointerImgGreen, pointerImgGreen_rect)
+
+
         platform.all_sprites_list.update()
         platform.all_sprites_list.draw(gameDisplay)
         

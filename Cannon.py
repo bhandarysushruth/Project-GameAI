@@ -1,5 +1,6 @@
 import pygame
-import Movement
+from Movement import *
+
 
 DISPLAY_WIDTH = 30
 DISPLAY_HEIGHT = 30
@@ -51,4 +52,25 @@ class Cannon(pygame.sprite.Sprite):
     #         return True
     #     else:
     #         return False
+
+
+# function checks is (x,y is in the range of any cannons)
+def InCannonRange(platform, x, y, radius):
+
+    if (calcDistance(platform.cannon_list[0].x, platform.cannon_list[0].y, x, y) < radius) or (calcDistance(platform.cannon_list[1].x, platform.cannon_list[1].y, x, y) < radius):
+        return True
+    else:
+        return False
+
+
+
+
+
+
+
+
+
+
+
+
 

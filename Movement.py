@@ -79,16 +79,30 @@ def object_seek(target, player, vel):
     player.y+=int(mon_vel_y)
 
 
-
+#platoon seek is a seek for the entire platoon
+#The entire platoon moves towards the target object at (seek_x, seek_y)
 
 def platoon_seek(platform, platoon_number, seek_x, seek_y, team):
 
     i = 0
     sx=seek_x
     sy=seek_y
+
+    # if we make all the soldiers seek the the same locations, they will all overlap
+    # hence we define 6 positions around the original seek cordinates
+    # A platooon can have a max of 6 soldiers
+    # hence we define 6 positions and make the soldiers seek to 6 separate cordinates
+    
     positions = [(seek_x,seek_y),(seek_x + 15 ,seek_y), (seek_x,seek_y+15),(seek_x,seek_y-15),(seek_x-15,seek_y),(seek_x+15,seek_y+15)]
 
     if team == 'player':
+
+        for character in platform.playerArmy:
+            if character.platoon == platoon_number:
+                object_seek(Soldier(positions[i][0], positions[i][1], 1, 'player'), character, 5)
+                i+=1
+
+    elif team == 'enemy':
 
         for character in platform.playerArmy:
             if character.platoon == platoon_number:
