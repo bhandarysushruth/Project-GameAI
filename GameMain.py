@@ -8,6 +8,8 @@ import AquaticMine
 import Ship
 from Movement import *
 from Army import *
+import Path
+import Graph
 
 # Global variables
 DISPLAY_WIDTH = 1440
