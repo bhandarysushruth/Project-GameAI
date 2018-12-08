@@ -9,13 +9,18 @@ AQUAMINE_IMG = pygame.image.load("aquamine.png")
 AQUAMINE_IMG = pygame.transform.scale(AQUAMINE_IMG, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
 
-class AquaticMine:
+class AquaticMine(pygame.sprite.Sprite):
     image = AQUAMINE_IMG
 
     def __init__(self, x, y, radius):
+        # Call the parent class (Sprite) constructor
+        super().__init__()
+
         self.x = x
         self.y = y
         self.radius = radius
 
-    def render(self, display):
-        display.blit(self.image, (self.x, self.y))
+        # Fetch the rectangle object that has the dimensions of the image
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y

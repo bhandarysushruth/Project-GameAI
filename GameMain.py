@@ -7,27 +7,29 @@ import LandMine
 import AquaticMine
 import Ship
 from Movement import *
-
-
 from Army import *
 
 # Global variables
 DISPLAY_WIDTH = 1440
 DISPLAY_HEIGHT = 875
 RADIUS = 25
+ISLAND_RADIUS = 380
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 25, 25)
-LCANNON_IMG = pygame.image.load("lcannon.png")
-LCANNON_IMG = pygame.transform.scale(LCANNON_IMG, (50, 50))
-RCANNON_IMG = pygame.image.load("rcannon.png")
-RCANNON_IMG = pygame.transform.scale(RCANNON_IMG, (50, 50))
 
-# crosshair instead of cursor
+# Loading images
+LCANNON_IMG = pygame.image.load("lcannon.png")
+LCANNON_IMG = pygame.transform.scale(LCANNON_IMG, (64, 40))
+RCANNON_IMG = pygame.image.load("rcannon.png")
+RCANNON_IMG = pygame.transform.scale(RCANNON_IMG, (65, 42))
+background = pygame.image.load("background.png")
+background = pygame.transform.scale(background, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
+
+# Crosshair instead of cursor
 pointerImgRed = pygame.image.load('redcross.png')
 pointerImgRed = pygame.transform.scale(pointerImgRed, (30,30))
 pointerImgRed_rect = pointerImgRed.get_rect()
-
 pointerImgGreen = pygame.image.load('BlackCross.png')
 pointerImgGreen = pygame.transform.scale(pointerImgGreen, (30,30))
 pointerImgGreen_rect = pointerImgGreen.get_rect()
@@ -39,26 +41,13 @@ pygame.display.set_caption('PROTECT THE CASTLE')
 done = False
 clock = pygame.time.Clock()
 
-# # Create backing graph
-# graph = []
-# for r in range(80):
-#     # Add an empty array that will hold each cell in this row
-#     graph.append([])
-#     for c in range(80):
-#         graph[r].append(0)  # Append a cell
+# Identify water areas vs land areas
+island_circle = pygame.draw.circle(gameDisplay, BLACK, (703, 406), ISLAND_RADIUS, 0)
 
-
-# Initializing game assets
-background = pygame.image.load("background.png")
-background = pygame.transform.scale(background, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
-
-# Initializing button  menu
+# Initializing button menu
 status = ""
-# wall_list = []
-# cannon_list = []
-# landmine_list = []
-# aquamine_list = []
 
+# Defining main classes
 class Blackboard:
 
     def __init__(self, platform):
@@ -80,9 +69,6 @@ class Blackboard:
             if len(self.active_platoon_seeks) == 0:
                 platoon_seek_active = False
 
-
-
-
 class GamePlatform:
 
     def __init__(self):
@@ -90,12 +76,13 @@ class GamePlatform:
         self.cannon_list = []
         self.landmine_list = []
         self.aquamine_list = []
+        self.ship_list = []
         self.playerArmy = []
         self.enemyArmy = []
         self.all_sprites_list = []
 
 
-# Some game functions
+# Defining some game functions
 def fire_cannon(x, y, platform):
     """ Fires a cannon based on where the mouse coordinates currently are; the left side cannon fires
     if the cursor is to the left of XXX and the right side cannon fires if the cursor is to the right
@@ -105,15 +92,13 @@ def fire_cannon(x, y, platform):
     cannon_1 = platform.cannon_list[0]
     cannon_2 = platform.cannon_list[1]
 
-    distance_1 = Movement.calcDistance(cannon_1.x, cannon_1.y, x, y)
-    distance_2 = Movement.calcDistance(cannon_2.x, cannon_2.y, x, y)
+    distance_1 = calcDistance(cannon_1.x, cannon_1.y, x, y)
+    distance_2 = calcDistance(cannon_2.x, cannon_2.y, x, y)
 
     if distance_1 < distance_2:  # cannon_1 is closer to the target
         return cannon_1, distance_1  # return cannon_1 as cannon to fire from for cannon ball to seek from
     else:  # cannon_2 is closer to the target
         return cannon_2, distance_2  # return cannon_2 as cannont to fire from for cannon ball to seek from
-
-
 
 
 if __name__ == '__main__':
@@ -134,6 +119,7 @@ if __name__ == '__main__':
     platform.all_sprites_list.add(platform.cannon_list[0])
     platform.all_sprites_list.add(platform.cannon_list[1])
 
+
     # Creating Player Armies
 
     #platoon1
@@ -152,6 +138,12 @@ if __name__ == '__main__':
     platform.playerArmy.append(Knight(935,408, 2, 'player'))
     platform.playerArmy.append(Knight(980,408, 2, 'player'))
 
+    #create 3 ships
+    platform.ship_list.append(Ship.Ship(100, 100, 0, 10))
+    platform.ship_list.append(Ship.Ship(1000, 100, 0, 10))
+    platform.ship_list.append(Ship.Ship(1200, 700, 0, 10))
+    for ship in platform.ship_list:
+        platform.all_sprites_list.add(ship)
 
     pos = pygame.mouse.get_pos()
 
@@ -172,27 +164,45 @@ if __name__ == '__main__':
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # User clicks the mouse. Get the position
                 pos = pygame.mouse.get_pos()
-                print("Click ", pos)
+                print("Click ", pos, status)
 
                 # If a menu item is selected, perform the required action
-                if status == "Create Wall":
-                    wall = Wall.Wall(pos[0], pos[1], RADIUS)
-                    platform.wall_list.append(wall)
-                elif status == "Create Land Mine":
-                    land_mine = LandMine.LandMine(pos[0], pos[1], RADIUS)
-                    platform.landmine_list.append(land_mine)
-                elif status == "Create Aquatic Mine":
-                    aquamine = AquaticMine.AquaticMine(pos[0], pos[1], RADIUS)
-                    platform.aquamine_list.append(aquamine)
+                if status == "Create Mine":
+                    x1, y1 = pos
+                    x2, y2 = island_circle.center
+                    distance = math.hypot(x1 - x2, y1 - y2)
+
+                    if distance <= ISLAND_RADIUS:
+                        # self.radius = self.radius // 2
+                    # If the mouse is colliding with the land circle, create a landmine
+                    # if island_circle.get_rect().collidepoint(pygame.mouse.get_pos()):
+                        land_mine = LandMine.LandMine(pos[0] - 15, pos[1] - 15, RADIUS)
+                        platform.landmine_list.append(land_mine)
+                        platform.all_sprites_list.add(land_mine)
+                    # Else create an aquatic mine
+                    else:
+                        aquamine = AquaticMine.AquaticMine(pos[0] - 15, pos[1] - 15, RADIUS)
+                        platform.aquamine_list.append(aquamine)
+                        platform.all_sprites_list.add(aquamine)
+                # if status == "Create Land Mine":
+                #     land_mine = LandMine.LandMine(pos[0]-15, pos[1]-15, RADIUS)
+                #     platform.landmine_list.append(land_mine)
+                #     platform.all_sprites_list.add(land_mine)
+                # elif status == "Create Aquatic Mine":
+                #     aquamine = AquaticMine.AquaticMine(pos[0]-15, pos[1]-15, RADIUS)
+                #     platform.aquamine_list.append(aquamine)
+                #     platform.all_sprites_list.add(aquamine)
                 elif status == "Fire Cannon":
                     print(fire_cannon(pos[0], pos[1], platform)[0])
 
             elif event.type == pygame.KEYDOWN:
                 # Figure out if it was an arrow key. If so adjust speed.
-                if event.key == pygame.K_l:
-                    status = "Create Land Mine"
-                elif event.key == pygame.K_a:
-                    status = "Create Aquatic Mine"
+                if event.key == pygame.K_m:
+                    status = "Create Mine"
+                # if event.key == pygame.K_l:
+                #     status = "Create Land Mine"
+                # elif event.key == pygame.K_a:
+                #     status = "Create Aquatic Mine"
                 elif event.key == pygame.K_f:
                     status = "Fire Cannon"
                 elif event.key == pygame.K_n:
@@ -208,9 +218,7 @@ if __name__ == '__main__':
         # Drawing to screen
         gameDisplay.blit(background, (0, 0))
 
-        #displaying crosshairs
-        
-        
+        # displaying crosshairs
         if cursor_type == 'red':
             pointerImgRed_rect.center = pygame.mouse.get_pos()
             gameDisplay.blit(pointerImgRed, pointerImgRed_rect)

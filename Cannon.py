@@ -17,6 +17,7 @@ class Cannon(pygame.sprite.Sprite):
     def __init__(self, x, y, radius, image):
         # Call the parent class (Sprite) constructor
         super().__init__()
+
         self.x = x
         self.y = y
         self.radius = radius

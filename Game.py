@@ -19,8 +19,6 @@ LCANNON_IMG = pygame.image.load("lcannon.png")
 LCANNON_IMG = pygame.transform.scale(LCANNON_IMG, (50, 50))
 RCANNON_IMG = pygame.image.load("rcannon.png")
 RCANNON_IMG = pygame.transform.scale(RCANNON_IMG, (50, 50))
-GCROSSHAIR = pygame.image.load("greencrosshair.png")
-GCROSSHAIR = pygame.transform.scale(GCROSSHAIR, (15, 15))
 RCROSSHAIR = pygame.image.load("redcross.png")
 RCROSSHAIR = pygame.transform.scale(RCROSSHAIR, (15, 15))
 
