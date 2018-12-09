@@ -221,13 +221,6 @@ if __name__ == '__main__':
                         aquamine = AquaticMine.AquaticMine(pos[0] - 15, pos[1] - 15, RADIUS)
                         platform.aquamine_list.append(aquamine)
                         platform.all_sprites_list.add(aquamine)
-                # if status == "Create Land Mine":
-                #     land_mine = LandMine.LandMine(pos[0]-15, pos[1]-15, RADIUS)
-                #     platform.landmine_list.append(land_mine)
-                #     platform.all_sprites_list.add(land_mine)
-                # elif status == "Create Aquatic Mine":
-                #     aquamine = AquaticMine.AquaticMine(pos[0]-15, pos[1]-15, RADIUS)
-                #     platform.aquamine_list.append(aquamine)
                 #     platform.all_sprites_list.add(aquamine)
                 elif status == "Fire Cannon":
                     print(fire_cannon(pos[0], pos[1], platform)[0])
@@ -283,8 +276,22 @@ if __name__ == '__main__':
         #     platform.all_sprites_list.add(aquamine)
         elif status == "Fire Cannon":
             print(fire_cannon(pos[0], pos[1], platform)[0])
-            
-        #-----------------
+
+        #-----------------/ CREATING A MINE------------------
+
+        #------------ CHECKING FOR CONTACT WITH MINES--------------------
+
+        for platoon in platform.playerPlatoons:
+            for mine in platform.landmine_list:
+                d=calcDistance(mine.x, mine.y, platoon.avg_coord[0],platoon.avg_coord[1])
+                if d < 30:
+                    destroyPlatoon(platoon)
+                    platform.landmine_list.remove(mine)
+                    platform.all_sprites_list.remove(mine)
+
+        #------------ /CHECKING FOR CONTACT WITH MINES--------------------
+
+
 
 
 

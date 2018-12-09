@@ -98,6 +98,10 @@ class Platoon:
 
 
 
+def destroyPlatoon(platoon):
+    for member in platoon.platoon_members:
+        member.health = 0
+    platoon.update()
 
 
 
