@@ -10,6 +10,8 @@ from Movement import *
 from Army import *
 import Path
 import Graph
+from Strategies import *
+
 
 # Global variables
 DISPLAY_WIDTH = 1440
@@ -82,6 +84,7 @@ class GamePlatform:
         self.playerArmy = []
         self.enemyArmy = []
         self.all_sprites_list = []
+        self.platoons = []
 
 
 # Defining some game functions
@@ -125,20 +128,30 @@ if __name__ == '__main__':
     # Creating Player Armies
 
     #platoon1
+    platform.playerArmy.append(Knight(480,408, 1, 'player'))
     platform.playerArmy.append(Soldier(450,400, 1, 'player'))
     platform.playerArmy.append(Soldier(465,400, 1, 'player'))
+    platform.playerArmy.append(Knight(435,408, 1, 'player'))
     platform.playerArmy.append(Soldier(450,415, 1, 'player'))
     platform.playerArmy.append(Soldier(465,415, 1, 'player'))
-    platform.playerArmy.append(Knight(435,408, 1, 'player'))
-    platform.playerArmy.append(Knight(480,408, 1, 'player'))
+    
+    
+
+    #creating a platoon object with all the members of platoon1 and adding it to platform
+    platform.platoons.append(Platoon(platform,1,'player'))
+
 
     #platoon 2
+    platform.playerArmy.append(Knight(980,408, 2, 'player'))
     platform.playerArmy.append(Soldier(950,400, 2, 'player'))
     platform.playerArmy.append(Soldier(965,400, 2, 'player'))
     platform.playerArmy.append(Soldier(950,415, 2, 'player'))
-    platform.playerArmy.append(Soldier(965,415, 2, 'player'))
     platform.playerArmy.append(Knight(935,408, 2, 'player'))
-    platform.playerArmy.append(Knight(980,408, 2, 'player'))
+    platform.playerArmy.append(Soldier(965,415, 2, 'player'))
+    
+        
+    platform.platoons.append(Platoon(platform,2,'player'))
+
 
     #create 3 ships
     platform.ship_list.append(Ship.Ship(100, 100, 0, 10))
@@ -234,12 +247,13 @@ if __name__ == '__main__':
         
         # random tests ------------------------
 
-        # testing platoon_seek fucntion
+        # testing platoon update
+        # for plat in platform.platoons:
+        #     plat.update()
+        #     print(plat.total_health)
 
-        #moving platoon number 1
-        #platoon_seek(platform, 1, 450, 600, 'player')
-        #moving platoon2
-        #platoon_seek(platform, 2, 950, 280, 'player')
+        #testing ATTACK
+        #Attack(platform.platoons[0], platform.platoons[1])
 
         #-----------------------------------
 

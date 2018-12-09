@@ -37,3 +37,66 @@ class Knight:
         if not self.is_dead:
             pygame.draw.circle(gameDisplay, self.color,(self.x, self.y), 7)
             pygame.draw.circle(gameDisplay, self.color,(self.x, self.y), 9,1)
+
+class Platoon:
+    def __init__(self,platform,platoon_number,team):
+
+        self.platoon_number=platoon_number
+        self.team = team
+        self.platoon_members=[]
+        self.members_alive = 6
+        self.total_health = 0
+        
+        #debugging
+        print('creating paltoon '+str(platoon_number))
+
+        #building a platoon from the platform and platoon number
+        if team == 'player':
+            for member in platform.playerArmy:
+                if member.platoon == platoon_number:
+
+                    #debugging
+                    print("total_health --------------"+str(self.total_health))
+                    print("member health :"+str(member.health))
+
+                    self.platoon_members.append(member)
+                    self.total_health= self.total_health + member.health
+        elif team == 'enemy':
+            for member in platform.enemyArmy:
+                if member.platoon == platoon_number:
+                    self.platoon_members.append(member)
+                    self.total_health+=member.health
+
+        self.members_alive = len(self.platoon_members)
+
+        print("platoon created. total health : "+ str(self.total_health))
+
+
+
+    #updates the platoon to check if any member is dead and updates members_alive count and total health
+    def update(self):
+
+        health_count=0
+        for mem in self.platoon_members:
+            health_count += mem.health
+
+
+        for member in self.platoon_members:
+            if member.health == 0:
+                member.is_dead =True
+                self.platoon_members.remove(member)
+            
+            #health_count+=member.health
+
+        self.members_alive=len(self.platoon_members)
+        self.total_health = health_count
+
+
+
+
+
+
+
+
+
+
