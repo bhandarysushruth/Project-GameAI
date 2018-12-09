@@ -1,5 +1,6 @@
 import pygame
 import math
+from random import randint
 
 DISPLAY_WIDTH = 124
 DISPLAY_HEIGHT = 92
@@ -14,7 +15,7 @@ class Ship(pygame.sprite.Sprite):
     capacity = 100
     image = SHIP_IMG
 
-    def __init__(self, x, y, velocity, max_vel):
+    def __init__(self, x, y, velocity, max_vel, paths):
         # Call the parent class (Sprite) constructor
         super().__init__()
 
@@ -24,6 +25,7 @@ class Ship(pygame.sprite.Sprite):
         self.y_vel = 0
         self.vel = velocity
         self.max_vel = max_vel
+        self.path = paths[randint(0,2)]
 
         # Fetch the rectangle object that has the dimensions of the image
         self.rect = self.image.get_rect()

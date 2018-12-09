@@ -56,7 +56,7 @@ class Graph:
                 if i == dest:
                     break
 
-        # print("path: ", currentpath)
+        print("path: ", currentpath)
         return currentpath
 
     def convertpath(self, resultpath, nodearray):

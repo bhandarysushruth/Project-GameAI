@@ -1,4 +1,5 @@
 import pygame
+import Movement
 
 # Define global variables
 MIN_RADIUS = 5
@@ -35,17 +36,19 @@ class Path:
     length = 0
     radius = MIN_RADIUS
 
-    # # Draws the path to be followed
-    # def draw(self, screen, pathlist):
-    #
-    #     length = len(pathlist)
-    #
-    #     for i, val in enumerate(pathlist):
-    #         # If we've reached the end of the list, stop iterating
-    #         if i == length - 1:
-    #             return
-    #         pygame.draw.line(screen, RED, (pathlist[i].x, pathlist[i].y), (pathlist[i+1].x, pathlist[i+1].y), 5)
+    def draw(self, screen, pathlist):
+        """ Draws the path to be followed """
+
+        length = len(pathlist)
+
+        for i, val in enumerate(pathlist):
+            # If we've reached the end of the list, stop iterating
+            if i == length - 1:
+                return
+            pygame.draw.line(screen, RED, (pathlist[i].x, pathlist[i].y), (pathlist[i+1].x, pathlist[i+1].y), 5)
 
     def createpath(self, shortestpath):
+        """ Convert to path object """
         for node in shortestpath:
             self.path.append(node.point)
+

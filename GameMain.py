@@ -81,6 +81,8 @@ class GamePlatform:
         self.ship_list = []
         self.playerArmy = []
         self.enemyArmy = []
+        self.ship_paths = []
+        self.island_nodes = []
         self.all_sprites_list = []
 
 
@@ -103,26 +105,105 @@ def fire_cannon(x, y, platform):
         return cannon_2, distance_2  # return cannon_2 as cannont to fire from for cannon ball to seek from
 
 
+def find_route(pos, dest, node_list):
+    """ Given the initial position of a land unit, find a path from its position to an end position """
+
+    # Variable to hold the result path
+    result_path = []
+
+    # Get start position
+    x1 = pos[0]
+    y1 = pos[1]
+
+    # Initialize variables for loop
+    closest_node = None
+    distance = 2000  # Arbitrary large distance that can't exist between values for this display size
+
+    # Find closest start node
+    for node in node_list:
+        distance_from_start = calcDistance(x1, y1, node.point.x, node.point.y)
+        if (distance_from_start < distance):
+            distance = distance_from_start
+            closest_node = node
+    result_path.append(closest_node)
+    print("start node #: ", closest_node.number)
+    source = closest_node.number
+
+    # Count nodes going forward (clockwise)
+    forward_list = []
+    print("forward loop")
+    # Determine starting index
+    start = source
+    if source == len(node_list) - 1:
+        start = 0
+    print("starting at node: ", start)
+    # Look for nodes
+    for i in range(start, len(node_list)):
+        if node_list[i].number == dest:
+            forward_list.append(node_list[i])
+            print("appended node ", node_list[i].number)
+            break
+        forward_list.append(node_list[i])
+        print("appended node ", node_list[i].number)
+        if i + 1 == len(node_list):
+            for j in range(0, start):
+                if node_list[j].number == dest:
+                    forward_list.append(node_list[i])
+                    print("appended node ", node_list[j].number)
+                    break
+                forward_list.append(node_list[j])
+                print("appended node ", node_list[j].number)
+
+    # Count nodes going backward (counter clockwise)
+    backward_list = []
+    print("backward loop")
+    # Determine the starting index
+    if source == 0:
+        backward_list.append(node_list[source])
+        source = len(node_list) - 1
+    for i in range(source, 0, -1):
+        if node_list[i].number == dest:
+            backward_list.append(node_list[i])
+            print("appended node ", node_list[i].number)
+            break
+        backward_list.append(node_list[i])
+        print("appended node ", node_list[i].number)
+        if i == 0:
+            for j in range(len(node_list), source, -1):
+                if node_list[j].number == source or node_list[j].number == dest:
+                    backward_list.append(node_list[i])
+                    print("appended node ", node_list[j].number)
+                    break
+                backward_list.append(node_list[j])
+                print("appended node ", node_list[j].number)
+
+    # Compare which path is shorter
+    print("length of forward: ", len(forward_list))
+    print("length of backward: ", len(backward_list))
+
+    if len(forward_list) < len(backward_list):
+        return forward_list
+    else:
+        return backward_list
+
 if __name__ == '__main__':
 
-    # Setting up mouse info
+    # --- Mouse set up
     pygame.mouse.set_visible(True)
     cursor_type = 'green'
-    #all_sprites_list = pygame.sprite.Group()
 
+    # --- Set up game platform
     platform = GamePlatform()
     bb= Blackboard(platform)
 
-    #populating the Game Platform
-
+    # --- Populating the Game Platform
     platform.all_sprites_list = pygame.sprite.Group()
-    #platform.all_sprites_list.add(Player.Player())
     platform.cannon_list = [Cannon(540, 410, RADIUS, LCANNON_IMG), Cannon(800, 390, RADIUS, RCANNON_IMG)]
     platform.all_sprites_list.add(platform.cannon_list[0])
     platform.all_sprites_list.add(platform.cannon_list[1])
 
 
-    # Creating Player Armies
+    # --- Creating Player Armies
 
     #platoon1
     platform.playerArmy.append(Soldier(450,400, 1, 'player'))
@@ -140,12 +221,78 @@ if __name__ == '__main__':
     platform.playerArmy.append(Knight(935,408, 2, 'player'))
     platform.playerArmy.append(Knight(980,408, 2, 'player'))
 
-    #create 3 ships
-    platform.ship_list.append(Ship.Ship(100, 100, 0, 10))
-    platform.ship_list.append(Ship.Ship(1000, 100, 0, 10))
-    platform.ship_list.append(Ship.Ship(1200, 700, 0, 10))
+    # --- Determine routes for ships that will be used randomly for ships
+    g1 = Graph.Graph()
+    g2 = Graph.Graph()
+
+    # Adjacency list in the form of a matrix
+    graph1 = [[0, 5, 0, 0, 0, 10, 0, 0],
+              [0, 0, 5, 0, 0, 0, 0, 0],
+              [0, 0, 0, 5, 0, 0, 0, 0],
+              [0, 0, 0, 0, 5, 0, 0, 0],
+              [0, 0, 0, 5, 0, 0, 0, 30],
+              [0, 0, 0, 0, 0, 0, 5, 0],
+              [0, 0, 0, 0, 0, 0, 0, 10],
+              [0, 0, 0, 0, 0, 0, 0, 0]]
+    graph2 = [[0, 5, 0],
+              [0, 0, 5],
+              [0, 0, 0]]
+
+    # Node mapping and creates the shortest path from source to destination via graph 1
+    node0 = Path.Node(0, Path.Point(70, 55))
+    node1 = Path.Node(1, Path.Point(174, 287))
+    node2 = Path.Node(2, Path.Point(160, 720))
+    node3 = Path.Node(3, Path.Point(556, 779))
+    node4 = Path.Node(4, Path.Point(1007, 672))
+    node5 = Path.Node(5, Path.Point(678, 73))
+    node6 = Path.Node(6, Path.Point(1092, 204))
+    node7 = Path.Node(7, Path.Point(1224, 447))
+    nodearray1 = [node0, node1, node2, node3, node4, node5, node6, node7]
+    path_ship_1 = g1.dijkstra(graph1, 0, 1)
+    path_ship_2 = g1.dijkstra(graph1, 0, 4)
+
+    # Node mapping and creates the shortest path from source to destination via graph 1
+    node_one = Path.Node(0, Path.Point(70, 55))
+    node_two = Path.Node(1, Path.Point(678, 73))
+    node_three = Path.Node(2, Path.Point(1092, 204))
+    nodearray2 = [node_one, node_two, node_three]
+    path_ship_3 = g2.dijkstra(graph2, 0, 2)
+
+    # Converts the result path to one with nodes from the node array
+    result_path_1 = g1.convertpath(path_ship_1, nodearray1)
+    result_path_2 = g1.convertpath(path_ship_2, nodearray1)
+    result_path_3 = g2.convertpath(path_ship_3, nodearray2)
+
+    # Add these possible paths to the list
+    platform.ship_paths.append(result_path_1)
+    platform.ship_paths.append(result_path_2)
+    platform.ship_paths.append(result_path_3)
+
+    # Creates a path object and a path from the shortest path found
+    # path_1_object = Path.Path().createpath(result_path_1)
+    # print(path_1_object)
+    # path_2_object = Path.Path().createpath(result_path_2)
+    # path_3_object = Path.Path().createpath(result_path_3)
+
+    # Create 3 ships
+    platform.ship_list.append(Ship.Ship(100, 100, 0, 10, platform.ship_paths))
+    platform.ship_list.append(Ship.Ship(100, 100, 0, 10, platform.ship_paths))
+    platform.ship_list.append(Ship.Ship(100, 100, 0, 10, platform.ship_paths))
     for ship in platform.ship_list:
         platform.all_sprites_list.add(ship)
+
+    # --- Determine routes for soldiers once they reach the island
+    platform.island_nodes.append(Path.Node(0, Path.Point(466, 348)))
+    platform.island_nodes.append(Path.Node(1, Path.Point(630, 239)))
+    platform.island_nodes.append(Path.Node(2, Path.Point(805, 259)))
+    platform.island_nodes.append(Path.Node(3, Path.Point(916, 484)))
+    platform.island_nodes.append(Path.Node(4, Path.Point(800, 579)))
+    platform.island_nodes.append(Path.Node(5, Path.Point(555, 560)))
+    # ex_pos1 = [355, 418]
+    ex_pos1 = [875, 682]
+    # onepath = find_route(ex_pos1, 4, platform.island_nodes)
+    onepath = find_route(ex_pos1, 2, platform.island_nodes)
+    print(onepath)
 
     pos = pygame.mouse.get_pos()
 
@@ -231,7 +378,8 @@ if __name__ == '__main__':
         bb.update()
         platform.all_sprites_list.update()
         platform.all_sprites_list.draw(gameDisplay)
-        
+        # path_1_object.draw(gameDisplay, path_1_object.path)
+
         # random tests ------------------------
 
         # testing platoon_seek fucntion
