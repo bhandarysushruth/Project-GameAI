@@ -1,7 +1,7 @@
 import pygame
 
-import Player
-import Wall
+import Door
+import Goal
 from Cannon import *
 import LandMine
 import AquaticMine
@@ -29,6 +29,7 @@ RCANNON_IMG = pygame.image.load("rcannon.png")
 RCANNON_IMG = pygame.transform.scale(RCANNON_IMG, (65, 42))
 background = pygame.image.load("background.png")
 background = pygame.transform.scale(background, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
+
 
 # Crosshair instead of cursor
 pointerImgRed = pygame.image.load('redcross.png')
@@ -74,6 +75,8 @@ class Blackboard:
                 platoon_seek_active = False
 
 class GamePlatform:
+    gate = None
+    goal = None
 
     def __init__(self):
         self.wall_list = []
@@ -129,37 +132,37 @@ def find_route(pos, dest, node_list):
             distance = distance_from_start
             closest_node = node
     result_path.append(closest_node)
-    print("start node #: ", closest_node.number)
+    # print("start node #: ", closest_node.number)
     source = closest_node.number
 
     # Count nodes going forward (clockwise)
     forward_list = []
-    print("forward loop")
+    # print("forward loop")
     # Determine starting index
     start = source
     if source == len(node_list) - 1:
         start = 0
-    print("starting at node: ", start)
+    # print("starting at node: ", start)
     # Look for nodes
     for i in range(start, len(node_list)):
         if node_list[i].number == dest:
             forward_list.append(node_list[i])
-            print("appended node ", node_list[i].number)
+            # print("appended node ", node_list[i].number)
             break
         forward_list.append(node_list[i])
-        print("appended node ", node_list[i].number)
+        # print("appended node ", node_list[i].number)
         if i + 1 == len(node_list):
             for j in range(0, start):
                 if node_list[j].number == dest:
                     forward_list.append(node_list[i])
-                    print("appended node ", node_list[j].number)
+                    # print("appended node ", node_list[j].number)
                     break
                 forward_list.append(node_list[j])
-                print("appended node ", node_list[j].number)
+                # print("appended node ", node_list[j].number)
 
     # Count nodes going backward (counter clockwise)
     backward_list = []
-    print("backward loop")
+    # print("backward loop")
     # Determine the starting index
     if source == 0:
         backward_list.append(node_list[source])
@@ -167,22 +170,22 @@ def find_route(pos, dest, node_list):
     for i in range(source, 0, -1):
         if node_list[i].number == dest:
             backward_list.append(node_list[i])
-            print("appended node ", node_list[i].number)
+            # print("appended node ", node_list[i].number)
             break
         backward_list.append(node_list[i])
-        print("appended node ", node_list[i].number)
+        # print("appended node ", node_list[i].number)
         if i == 0:
             for j in range(len(node_list), source, -1):
                 if node_list[j].number == source or node_list[j].number == dest:
                     backward_list.append(node_list[i])
-                    print("appended node ", node_list[j].number)
+                    # print("appended node ", node_list[j].number)
                     break
                 backward_list.append(node_list[j])
-                print("appended node ", node_list[j].number)
+                # print("appended node ", node_list[j].number)
 
     # Compare which path is shorter
-    print("length of forward: ", len(forward_list))
-    print("length of backward: ", len(backward_list))
+    # print("length of forward: ", len(forward_list))
+    # print("length of backward: ", len(backward_list))
 
     if len(forward_list) < len(backward_list):
         return forward_list
@@ -201,10 +204,15 @@ if __name__ == '__main__':
 
     # --- Populating the Game Platform
     platform.all_sprites_list = pygame.sprite.Group()
+    # Create 2 cannons, left and right
     platform.cannon_list = [Cannon(540, 410, RADIUS, LCANNON_IMG), Cannon(800, 390, RADIUS, RCANNON_IMG)]
     platform.all_sprites_list.add(platform.cannon_list[0])
     platform.all_sprites_list.add(platform.cannon_list[1])
-
+    # Create gate to siege
+    platform.gate = Door.Door(661, 525)
+    platform.all_sprites_list.add(platform.gate)
+    # Create goal for enemies
+    platform.goal = Goal.Goal(711, 444, 10, 10)
 
     # --- Creating Player Armies
 
@@ -323,25 +331,27 @@ if __name__ == '__main__':
     platform.island_nodes.append(Path.Node(3, Path.Point(916, 484)))
     platform.island_nodes.append(Path.Node(4, Path.Point(800, 579)))
     platform.island_nodes.append(Path.Node(5, Path.Point(555, 560)))
+
+    # --- Testing paths
     # ex_pos1 = [355, 418]
-    ex_pos1 = [875, 682]
+    # ex_pos1 = [875, 682]
     # onepath = find_route(ex_pos1, 4, platform.island_nodes)
-    onepath = find_route(ex_pos1, 2, platform.island_nodes)
-    print(onepath)
+    # onepath = find_route(ex_pos1, 2, platform.island_nodes)
+    # print(onepath)
 
     pos = pygame.mouse.get_pos()
 
     # --- GAME LOOP --- #
     while not done:
 
-        #checking if cannons are in range to select color of crosshair
+        # Checking if cannons are in range to select color of crosshair
         pos = pygame.mouse.get_pos()
         if not InCannonRange(platform, pos[0], pos[1], 200):
             cursor_type = 'red'
         else:
             cursor_type = 'green'
 
-
+        # Checking for mouse clicks and key presses
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
@@ -349,37 +359,10 @@ if __name__ == '__main__':
                 # User clicks the mouse. Get the position
                 pos = pygame.mouse.get_pos()
                 print("Click ", pos, status)
-
-                # If a menu item is selected, perform the required action
-                if status == "Create Mine":
-                    x1, y1 = pos
-                    x2, y2 = island_circle.center
-                    distance = math.hypot(x1 - x2, y1 - y2)
-
-                    if distance <= ISLAND_RADIUS:
-                        # self.radius = self.radius // 2
-                    # If the mouse is colliding with the land circle, create a landmine
-                    # if island_circle.get_rect().collidepoint(pygame.mouse.get_pos()):
-                        land_mine = LandMine.LandMine(pos[0] - 15, pos[1] - 15, RADIUS)
-                        platform.landmine_list.append(land_mine)
-                        platform.all_sprites_list.add(land_mine)
-                    # Else create an aquatic mine
-                    else:
-                        aquamine = AquaticMine.AquaticMine(pos[0] - 15, pos[1] - 15, RADIUS)
-                        platform.aquamine_list.append(aquamine)
-                        platform.all_sprites_list.add(aquamine)
-                #     platform.all_sprites_list.add(aquamine)
-                elif status == "Fire Cannon":
-                    print(fire_cannon(pos[0], pos[1], platform)[0])
-
             elif event.type == pygame.KEYDOWN:
                 # Figure out if it was an arrow key. If so adjust speed.
                 if event.key == pygame.K_m:
                     status = "Create Mine"
-                # if event.key == pygame.K_l:
-                #     status = "Create Land Mine"
-                # elif event.key == pygame.K_a:
-                #     status = "Create Aquatic Mine"
                 elif event.key == pygame.K_f:
                     status = "Fire Cannon"
                 elif event.key == pygame.K_n:
@@ -391,18 +374,13 @@ if __name__ == '__main__':
                     bb.platoon_seek_active = True
                     bb.active_platoon_seeks.append((2,pos[0],pos[1],'player'))
 
-
-        #--------------- CREATING A MINE ------
-
         if status == "Create Mine":
             x1, y1 = pos
             x2, y2 = island_circle.center
             distance = math.hypot(x1 - x2, y1 - y2)
 
             if distance <= ISLAND_RADIUS:
-                # self.radius = self.radius // 2
             # If the mouse is colliding with the land circle, create a landmine
-            # if island_circle.get_rect().collidepoint(pygame.mouse.get_pos()):
                 land_mine = LandMine.LandMine(pos[0] - 15, pos[1] - 15, RADIUS)
                 platform.landmine_list.append(land_mine)
                 platform.all_sprites_list.add(land_mine)
@@ -413,18 +391,8 @@ if __name__ == '__main__':
                 platform.all_sprites_list.add(aquamine)
 
             status = "None"
-        # if status == "Create Land Mine":
-        #     land_mine = LandMine.LandMine(pos[0]-15, pos[1]-15, RADIUS)
-        #     platform.landmine_list.append(land_mine)
-        #     platform.all_sprites_list.add(land_mine)
-        # elif status == "Create Aquatic Mine":
-        #     aquamine = AquaticMine.AquaticMine(pos[0]-15, pos[1]-15, RADIUS)
-        #     platform.aquamine_list.append(aquamine)
-        #     platform.all_sprites_list.add(aquamine)
         elif status == "Fire Cannon":
             print(fire_cannon(pos[0], pos[1], platform)[0])
-
-        #-----------------/ CREATING A MINE------------------
 
         #------------ CHECKING FOR CONTACT WITH MINES--------------------
 
@@ -435,12 +403,6 @@ if __name__ == '__main__':
                     destroyPlatoon(platoon)
                     platform.landmine_list.remove(mine)
                     platform.all_sprites_list.remove(mine)
-
-        #------------ /CHECKING FOR CONTACT WITH MINES--------------------
-
-
-
-
 
         # Drawing to screen
         gameDisplay.blit(background, (0, 0))
@@ -479,6 +441,24 @@ if __name__ == '__main__':
                 #print('distance = '+str(d))
                 if d < 50:
                     Attack(player,enemy)
+
+        # Check if an enemy soldier is at the gate or the goal
+        for platoon in platform.enemyPlatoons:
+            for enemy in platoon:
+                # Get the position of the enemy player
+                pos = [enemy.x, enemy.y]
+
+                # Check if this enemy is at the gate
+                if platform.gate.rect.collidepoint(pos):
+                    platform.gate.tagged = platform.gate.tagged + 1
+
+                    #
+
+                # Checking enemies at the goal
+                if platform.goal.rect.collidepoint(pos):
+                    platform.goal.tagged = platform.goal.tagged + 1
+
+                    # If 5 enemies have reached the goal, the game is over
 
 
         # rendering the soldiers on the game screen
