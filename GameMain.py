@@ -10,6 +10,8 @@ from Movement import *
 from Army import *
 import Path
 import Graph
+from Strategies import *
+
 
 # Global variables
 DISPLAY_WIDTH = 1440
@@ -84,7 +86,8 @@ class GamePlatform:
         self.ship_paths = []
         self.island_nodes = []
         self.all_sprites_list = []
-
+        self.playerPlatoons = []
+        self.enemyPlatoons = []
 
 # Defining some game functions
 def fire_cannon(x, y, platform):
@@ -206,20 +209,52 @@ if __name__ == '__main__':
     # --- Creating Player Armies
 
     #platoon1
+    
     platform.playerArmy.append(Soldier(450,400, 1, 'player'))
     platform.playerArmy.append(Soldier(465,400, 1, 'player'))
     platform.playerArmy.append(Soldier(450,415, 1, 'player'))
     platform.playerArmy.append(Soldier(465,415, 1, 'player'))
     platform.playerArmy.append(Knight(435,408, 1, 'player'))
     platform.playerArmy.append(Knight(480,408, 1, 'player'))
+    
+    
+
+    #creating a platoon object with all the members of platoon1 and adding it to platform
+    platform.playerPlatoons.append(Platoon(platform,1,'player'))
+
 
     #platoon 2
+    platform.playerArmy.append(Knight(980,408, 2, 'player'))
     platform.playerArmy.append(Soldier(950,400, 2, 'player'))
     platform.playerArmy.append(Soldier(965,400, 2, 'player'))
     platform.playerArmy.append(Soldier(950,415, 2, 'player'))
-    platform.playerArmy.append(Soldier(965,415, 2, 'player'))
     platform.playerArmy.append(Knight(935,408, 2, 'player'))
-    platform.playerArmy.append(Knight(980,408, 2, 'player'))
+    platform.playerArmy.append(Soldier(965,415, 2, 'player'))
+    
+        
+    platform.playerPlatoons.append(Platoon(platform,2,'player'))
+
+
+
+    # enemy platoon 1
+    platform.enemyArmy.append(Knight(750,610, 1, 'enemy'))
+    platform.enemyArmy.append(Soldier(765,610, 1, 'enemy'))
+    platform.enemyArmy.append(Soldier(750,625, 1, 'enemy'))
+    platform.enemyArmy.append(Knight(765,625, 1, 'enemy'))
+    platform.enemyArmy.append(Soldier(735,615, 1, 'enemy'))
+    platform.enemyArmy.append(Soldier(735,630, 1, 'enemy'))
+
+    platform.enemyPlatoons.append(Platoon(platform,1,'enemy'))
+
+    #enemy platoon 2
+    platform.enemyArmy.append(Knight(600,610, 2, 'enemy'))
+    platform.enemyArmy.append(Soldier(615,610, 2, 'enemy'))
+    platform.enemyArmy.append(Soldier(600,625, 2, 'enemy'))
+    platform.enemyArmy.append(Knight(615,625, 2, 'enemy'))
+    #platform.enemyArmy.append(Soldier(585,615, 2, 'enemy'))
+    #platform.enemyArmy.append(Soldier(585,630, 2, 'enemy'))
+
+    platform.enemyPlatoons.append(Platoon(platform,2,'enemy'))
 
     # --- Determine routes for ships that will be used randomly for ships
     g1 = Graph.Graph()
@@ -333,13 +368,6 @@ if __name__ == '__main__':
                         aquamine = AquaticMine.AquaticMine(pos[0] - 15, pos[1] - 15, RADIUS)
                         platform.aquamine_list.append(aquamine)
                         platform.all_sprites_list.add(aquamine)
-                # if status == "Create Land Mine":
-                #     land_mine = LandMine.LandMine(pos[0]-15, pos[1]-15, RADIUS)
-                #     platform.landmine_list.append(land_mine)
-                #     platform.all_sprites_list.add(land_mine)
-                # elif status == "Create Aquatic Mine":
-                #     aquamine = AquaticMine.AquaticMine(pos[0]-15, pos[1]-15, RADIUS)
-                #     platform.aquamine_list.append(aquamine)
                 #     platform.all_sprites_list.add(aquamine)
                 elif status == "Fire Cannon":
                     print(fire_cannon(pos[0], pos[1], platform)[0])
@@ -364,6 +392,56 @@ if __name__ == '__main__':
                     bb.active_platoon_seeks.append((2,pos[0],pos[1],'player'))
 
 
+        #--------------- CREATING A MINE ------
+
+        if status == "Create Mine":
+            x1, y1 = pos
+            x2, y2 = island_circle.center
+            distance = math.hypot(x1 - x2, y1 - y2)
+
+            if distance <= ISLAND_RADIUS:
+                # self.radius = self.radius // 2
+            # If the mouse is colliding with the land circle, create a landmine
+            # if island_circle.get_rect().collidepoint(pygame.mouse.get_pos()):
+                land_mine = LandMine.LandMine(pos[0] - 15, pos[1] - 15, RADIUS)
+                platform.landmine_list.append(land_mine)
+                platform.all_sprites_list.add(land_mine)
+            # Else create an aquatic mine
+            else:
+                aquamine = AquaticMine.AquaticMine(pos[0] - 15, pos[1] - 15, RADIUS)
+                platform.aquamine_list.append(aquamine)
+                platform.all_sprites_list.add(aquamine)
+
+            status = "None"
+        # if status == "Create Land Mine":
+        #     land_mine = LandMine.LandMine(pos[0]-15, pos[1]-15, RADIUS)
+        #     platform.landmine_list.append(land_mine)
+        #     platform.all_sprites_list.add(land_mine)
+        # elif status == "Create Aquatic Mine":
+        #     aquamine = AquaticMine.AquaticMine(pos[0]-15, pos[1]-15, RADIUS)
+        #     platform.aquamine_list.append(aquamine)
+        #     platform.all_sprites_list.add(aquamine)
+        elif status == "Fire Cannon":
+            print(fire_cannon(pos[0], pos[1], platform)[0])
+
+        #-----------------/ CREATING A MINE------------------
+
+        #------------ CHECKING FOR CONTACT WITH MINES--------------------
+
+        for platoon in platform.playerPlatoons:
+            for mine in platform.landmine_list:
+                d=calcDistance(mine.x, mine.y, platoon.avg_coord[0],platoon.avg_coord[1])
+                if d < 30:
+                    destroyPlatoon(platoon)
+                    platform.landmine_list.remove(mine)
+                    platform.all_sprites_list.remove(mine)
+
+        #------------ /CHECKING FOR CONTACT WITH MINES--------------------
+
+
+
+
+
         # Drawing to screen
         gameDisplay.blit(background, (0, 0))
 
@@ -382,17 +460,31 @@ if __name__ == '__main__':
 
         # random tests ------------------------
 
-        # testing platoon_seek fucntion
+        # testing platoon update
+        # for plat in platform.platoons:
+        #     plat.update()
+        #     print(plat.total_health)
 
-        #moving platoon number 1
-        #platoon_seek(platform, 1, 450, 600, 'player')
-        #moving platoon2
-        #platoon_seek(platform, 2, 950, 280, 'player')
+        #testing ATTACK
+        # Attack(platform.playerPlatoons[0], platform.enemyPlatoons[0])
 
         #-----------------------------------
 
+        # checking if anyone is in attacking range
+        for player in platform.playerPlatoons:
+            for enemy in platform.enemyPlatoons:
+                player.update()
+                enemy.update()
+                d = calcDistance(player.avg_coord[0],player.avg_coord[1],enemy.avg_coord[0],enemy.avg_coord[1])
+                #print('distance = '+str(d))
+                if d < 50:
+                    Attack(player,enemy)
+
+
         # rendering the soldiers on the game screen
         for character in platform.playerArmy:
+            character.render(gameDisplay)
+        for character in platform.enemyArmy:
             character.render(gameDisplay)
 
 
