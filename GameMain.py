@@ -252,6 +252,42 @@ if __name__ == '__main__':
                     bb.active_platoon_seeks.append((2,pos[0],pos[1],'player'))
 
 
+        #--------------- CREATING A MINE ------
+
+        if status == "Create Mine":
+            x1, y1 = pos
+            x2, y2 = island_circle.center
+            distance = math.hypot(x1 - x2, y1 - y2)
+
+            if distance <= ISLAND_RADIUS:
+                # self.radius = self.radius // 2
+            # If the mouse is colliding with the land circle, create a landmine
+            # if island_circle.get_rect().collidepoint(pygame.mouse.get_pos()):
+                land_mine = LandMine.LandMine(pos[0] - 15, pos[1] - 15, RADIUS)
+                platform.landmine_list.append(land_mine)
+                platform.all_sprites_list.add(land_mine)
+            # Else create an aquatic mine
+            else:
+                aquamine = AquaticMine.AquaticMine(pos[0] - 15, pos[1] - 15, RADIUS)
+                platform.aquamine_list.append(aquamine)
+                platform.all_sprites_list.add(aquamine)
+
+            status = "None"
+        # if status == "Create Land Mine":
+        #     land_mine = LandMine.LandMine(pos[0]-15, pos[1]-15, RADIUS)
+        #     platform.landmine_list.append(land_mine)
+        #     platform.all_sprites_list.add(land_mine)
+        # elif status == "Create Aquatic Mine":
+        #     aquamine = AquaticMine.AquaticMine(pos[0]-15, pos[1]-15, RADIUS)
+        #     platform.aquamine_list.append(aquamine)
+        #     platform.all_sprites_list.add(aquamine)
+        elif status == "Fire Cannon":
+            print(fire_cannon(pos[0], pos[1], platform)[0])
+            
+        #-----------------
+
+
+
         # Drawing to screen
         gameDisplay.blit(background, (0, 0))
 
