@@ -48,11 +48,12 @@ clock = pygame.time.Clock()
 # Identify water areas vs land areas
 island_circle = pygame.draw.circle(gameDisplay, BLACK, (703, 406), ISLAND_RADIUS, 0)
 
-# variables
+
+# GLOBAL VARIABLE
 status = ""
 cannon_range = 400
 cannon_blast_radius = 40
-#cannon_fire = "deactive"
+is_paused = False
 
 # Defining main classes
 class Blackboard:
@@ -172,186 +173,223 @@ if __name__ == '__main__':
     pos = pygame.mouse.get_pos()
 
     # --- GAME LOOP --- #
+    
     while not done:
 
-        #checking if cannons are in range to select color of crosshair
-        pos = pygame.mouse.get_pos()
-        if not InCannonRange(platform, pos[0], pos[1], cannon_range):
-            cursor_type = 'red'
-        else:
-            cursor_type = 'green'
+        if not is_paused:
 
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                done = True
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                # User clicks the mouse. Get the position
-                pos = pygame.mouse.get_pos()
-                print("Click ", pos, status)
-
-                # If a menu item is selected, perform the required action
-                if status == "Create Mine":
-                    x1, y1 = pos
-                    x2, y2 = island_circle.center
-                    distance = math.hypot(x1 - x2, y1 - y2)
-
-                    if distance <= ISLAND_RADIUS:
-                        # self.radius = self.radius // 2
-                    # If the mouse is colliding with the land circle, create a landmine
-                    # if island_circle.get_rect().collidepoint(pygame.mouse.get_pos()):
-                        land_mine = LandMine.LandMine(pos[0] - 15, pos[1] - 15, RADIUS)
-                        platform.landmine_list.append(land_mine)
-                        platform.all_sprites_list.add(land_mine)
-                    # Else create an aquatic mine
-                    else:
-                        aquamine = AquaticMine.AquaticMine(pos[0] - 15, pos[1] - 15, RADIUS)
-                        platform.aquamine_list.append(aquamine)
-                        platform.all_sprites_list.add(aquamine)
-                #     platform.all_sprites_list.add(aquamine)
-                elif status == "Fire Cannon":
-                    print(fire_cannon(pos[0], pos[1], platform)[0])
-
-            elif event.type == pygame.KEYDOWN:
-                # Figure out if it was an arrow key. If so adjust speed.
-                if event.key == pygame.K_m:
-                    status = "Create Mine"
-                # if event.key == pygame.K_l:
-                #     status = "Create Land Mine"
-                # elif event.key == pygame.K_a:
-                #     status = "Create Aquatic Mine"
-                elif event.key == pygame.K_f:
-                    status = "Fire Cannon"
-                elif event.key == pygame.K_n:
-                    status = "None"
-                elif event.key == pygame.K_1:
-                    bb.platoon_seek_active = True
-                    bb.active_platoon_seeks.append((1,pos[0],pos[1],'player'))
-                elif event.key == pygame.K_2:
-                    bb.platoon_seek_active = True
-                    bb.active_platoon_seeks.append((2,pos[0],pos[1],'player'))
-                elif event.key == pygame.K_c:
-                    if InCannonRange(platform,pos[0],pos[1],cannon_range):
-                        cannon_number = selectCannon(pos[0],pos[1],platform)
-                        platform.activeCannonBalls.append(CannonBall(platform,cannon_number,(pos[0],pos[1])))
-
-
-        # Drawing to screen
-        gameDisplay.blit(background, (0, 0))
-
-
-        #--------------- CREATING A MINE ------
-
-        if status == "Create Mine":
-            x1, y1 = pos
-            x2, y2 = island_circle.center
-            distance = math.hypot(x1 - x2, y1 - y2)
-
-            if distance <= ISLAND_RADIUS:
-                # self.radius = self.radius // 2
-            # If the mouse is colliding with the land circle, create a landmine
-            # if island_circle.get_rect().collidepoint(pygame.mouse.get_pos()):
-                land_mine = LandMine.LandMine(pos[0] - 15, pos[1] - 15, RADIUS)
-                platform.landmine_list.append(land_mine)
-                platform.all_sprites_list.add(land_mine)
-            # Else create an aquatic mine
+            #checking if cannons are in range to select color of crosshair
+            pos = pygame.mouse.get_pos()
+            if not InCannonRange(platform, pos[0], pos[1], cannon_range):
+                cursor_type = 'red'
             else:
-                aquamine = AquaticMine.AquaticMine(pos[0] - 15, pos[1] - 15, RADIUS)
-                platform.aquamine_list.append(aquamine)
-                platform.all_sprites_list.add(aquamine)
-
-            status = "None"
-        # if status == "Create Land Mine":
-        #     land_mine = LandMine.LandMine(pos[0]-15, pos[1]-15, RADIUS)
-        #     platform.landmine_list.append(land_mine)
-        #     platform.all_sprites_list.add(land_mine)
-        # elif status == "Create Aquatic Mine":
-        #     aquamine = AquaticMine.AquaticMine(pos[0]-15, pos[1]-15, RADIUS)
-        #     platform.aquamine_list.append(aquamine)
-        #     platform.all_sprites_list.add(aquamine)
-        elif status == "Fire Cannon":
-            print(fire_cannon(pos[0], pos[1], platform)[0])
-
-        #-----------------/ CREATING A MINE------------------
-
-        #------------ CHECKING FOR CONTACT WITH MINES--------------------
-
-        for platoon in platform.playerPlatoons:
-            for mine in platform.landmine_list:
-                d=calcDistance(mine.x, mine.y, platoon.avg_coord[0],platoon.avg_coord[1])
-                if d < 30:
-                    destroyPlatoon(platoon)
-                    platform.landmine_list.remove(mine)
-                    platform.all_sprites_list.remove(mine)
-
-        for platoon in platform.enemyPlatoons:
-            for mine in platform.landmine_list:
-                d=calcDistance(mine.x, mine.y, platoon.avg_coord[0],platoon.avg_coord[1])
-                if d < 30:
-                    destroyPlatoon(platoon)
-                    platform.landmine_list.remove(mine)
-                    platform.all_sprites_list.remove(mine)
-
-        #------------ /CHECKING FOR CONTACT WITH MINES--------------------
-
-        #------------ CANNON FIRING ------------------------------
-
-        if len(platform.activeCannonBalls) > 0:
-            for cannon_ball in platform.activeCannonBalls:
-                reached_dest = cannon_ball.update()
-                cannon_ball.render(gameDisplay)
-                if reached_dest:
-                    destroy(platform, cannon_ball.destination, cannon_blast_radius)
-                    platform.activeCannonBalls.remove(cannon_ball)
-
-        #------------ /CANNON FIRING ------------------------------
+                cursor_type = 'green'
 
 
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    done = True
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    # User clicks the mouse. Get the position
+                    pos = pygame.mouse.get_pos()
+                    print("Click ", pos, status)
+
+                    # If a menu item is selected, perform the required action
+                    if status == "Create Mine":
+                        x1, y1 = pos
+                        x2, y2 = island_circle.center
+                        distance = math.hypot(x1 - x2, y1 - y2)
+
+                        if distance <= ISLAND_RADIUS:
+                            # self.radius = self.radius // 2
+                        # If the mouse is colliding with the land circle, create a landmine
+                        # if island_circle.get_rect().collidepoint(pygame.mouse.get_pos()):
+                            land_mine = LandMine.LandMine(pos[0] - 15, pos[1] - 15, RADIUS)
+                            platform.landmine_list.append(land_mine)
+                            platform.all_sprites_list.add(land_mine)
+                        # Else create an aquatic mine
+                        else:
+                            aquamine = AquaticMine.AquaticMine(pos[0] - 15, pos[1] - 15, RADIUS)
+                            platform.aquamine_list.append(aquamine)
+                            platform.all_sprites_list.add(aquamine)
+                    #     platform.all_sprites_list.add(aquamine)
+                    elif status == "Fire Cannon":
+                        print(fire_cannon(pos[0], pos[1], platform)[0])
+
+                elif event.type == pygame.KEYDOWN:
+                    # Figure out if it was an arrow key. If so adjust speed.
+                    if event.key == pygame.K_m:
+                        status = "Create Mine"
+                    # if event.key == pygame.K_l:
+                    #     status = "Create Land Mine"
+                    # elif event.key == pygame.K_a:
+                    #     status = "Create Aquatic Mine"
+                    elif event.key == pygame.K_f:
+                        status = "Fire Cannon"
+                    elif event.key == pygame.K_n:
+                        status = "None"
+                    elif event.key == pygame.K_p:
+                        is_paused = True
+                    elif event.key == pygame.K_1:
+                        bb.platoon_seek_active = True
+                        bb.active_platoon_seeks.append((1,pos[0],pos[1],'player'))
+                    elif event.key == pygame.K_2:
+                        bb.platoon_seek_active = True
+                        bb.active_platoon_seeks.append((2,pos[0],pos[1],'player'))
+                    elif event.key == pygame.K_c:
+                        if InCannonRange(platform,pos[0],pos[1],cannon_range):
+                            cannon_number = selectCannon(pos[0],pos[1],platform)
+                            platform.activeCannonBalls.append(CannonBall(platform,cannon_number,(pos[0],pos[1])))
 
 
-        # Drawing to screen
-        #gameDisplay.blit(background, (0, 0))
-
-        # displaying crosshairs
-        if cursor_type == 'red':
-            pointerImgRed_rect.center = pygame.mouse.get_pos()
-            gameDisplay.blit(pointerImgRed, pointerImgRed_rect)
-        elif cursor_type == 'green':
-            pointerImgGreen_rect.center = pygame.mouse.get_pos()
-            gameDisplay.blit(pointerImgGreen, pointerImgGreen_rect)
-
-        bb.update()
-        platform.all_sprites_list.update()
-        platform.all_sprites_list.draw(gameDisplay)
-        
-        # random tests ------------------------
-
-        # testing fire cannon
-        # platform.activeCannonBalls.append(CannonBall(platform,1))
-        # platform.activeCannonBalls.append(CannonBall(platform,2))
-        # for cannon_ball in platform.activeCannonBalls:
-        #     cannon_ball.render(gameDisplay)
-
-        #-----------------------------------
-
-        # checking if anyone is in attacking range
-        for player in platform.playerPlatoons:
-            for enemy in platform.enemyPlatoons:
-                player.update()
-                enemy.update()
-                d = calcDistance(player.avg_coord[0],player.avg_coord[1],enemy.avg_coord[0],enemy.avg_coord[1])
-                #print('distance = '+str(d))
-                if d < 50:
-                    Attack(player,enemy)
+            # Drawing to screen
+            gameDisplay.blit(background, (0, 0))
 
 
-        # rendering the soldiers on the game screen
-        for character in platform.playerArmy:
-            character.render(gameDisplay)
-        for character in platform.enemyArmy:
-            character.render(gameDisplay)
+            #--------------- CREATING A MINE ------
+
+            if status == "Create Mine":
+                x1, y1 = pos
+                x2, y2 = island_circle.center
+                distance = math.hypot(x1 - x2, y1 - y2)
+
+                if distance <= ISLAND_RADIUS:
+                    # self.radius = self.radius // 2
+                # If the mouse is colliding with the land circle, create a landmine
+                # if island_circle.get_rect().collidepoint(pygame.mouse.get_pos()):
+                    land_mine = LandMine.LandMine(pos[0] - 15, pos[1] - 15, RADIUS)
+                    platform.landmine_list.append(land_mine)
+                    platform.all_sprites_list.add(land_mine)
+                # Else create an aquatic mine
+                else:
+                    aquamine = AquaticMine.AquaticMine(pos[0] - 15, pos[1] - 15, RADIUS)
+                    platform.aquamine_list.append(aquamine)
+                    platform.all_sprites_list.add(aquamine)
+
+                status = "None"
+            # if status == "Create Land Mine":
+            #     land_mine = LandMine.LandMine(pos[0]-15, pos[1]-15, RADIUS)
+            #     platform.landmine_list.append(land_mine)
+            #     platform.all_sprites_list.add(land_mine)
+            # elif status == "Create Aquatic Mine":
+            #     aquamine = AquaticMine.AquaticMine(pos[0]-15, pos[1]-15, RADIUS)
+            #     platform.aquamine_list.append(aquamine)
+            #     platform.all_sprites_list.add(aquamine)
+            elif status == "Fire Cannon":
+                print(fire_cannon(pos[0], pos[1], platform)[0])
+
+            #-----------------/ CREATING A MINE------------------
+
+            #------------ CHECKING FOR CONTACT WITH MINES--------------------
+
+            for platoon in platform.playerPlatoons:
+                for mine in platform.landmine_list:
+                    d=calcDistance(mine.x, mine.y, platoon.avg_coord[0],platoon.avg_coord[1])
+                    if d < 30:
+                        destroyPlatoon(platoon)
+                        platform.landmine_list.remove(mine)
+                        platform.all_sprites_list.remove(mine)
+
+            for platoon in platform.enemyPlatoons:
+                for mine in platform.landmine_list:
+                    d=calcDistance(mine.x, mine.y, platoon.avg_coord[0],platoon.avg_coord[1])
+                    if d < 30:
+                        destroyPlatoon(platoon)
+                        platform.landmine_list.remove(mine)
+                        platform.all_sprites_list.remove(mine)
+
+            #------------ /CHECKING FOR CONTACT WITH MINES--------------------
+
+            #------------ CANNON FIRING ------------------------------
+
+            if len(platform.activeCannonBalls) > 0:
+                for cannon_ball in platform.activeCannonBalls:
+                    reached_dest = cannon_ball.update()
+                    cannon_ball.render(gameDisplay)
+                    if reached_dest:
+                        destroy(platform, cannon_ball.destination, cannon_blast_radius)
+                        platform.activeCannonBalls.remove(cannon_ball)
+
+            #------------ /CANNON FIRING ------------------------------
 
 
-        # Go ahead and update the screen with what we've drawn.
-        pygame.display.update()
-        clock.tick(25)
+
+
+            # Drawing to screen
+            #gameDisplay.blit(background, (0, 0))
+
+            # displaying crosshairs
+            if cursor_type == 'red':
+                pointerImgRed_rect.center = pygame.mouse.get_pos()
+                gameDisplay.blit(pointerImgRed, pointerImgRed_rect)
+            elif cursor_type == 'green':
+                pointerImgGreen_rect.center = pygame.mouse.get_pos()
+                gameDisplay.blit(pointerImgGreen, pointerImgGreen_rect)
+
+            bb.update()
+            platform.all_sprites_list.update()
+            platform.all_sprites_list.draw(gameDisplay)
+            
+            # random tests ------------------------
+
+            # testing fire cannon
+            # platform.activeCannonBalls.append(CannonBall(platform,1))
+            # platform.activeCannonBalls.append(CannonBall(platform,2))
+            # for cannon_ball in platform.activeCannonBalls:
+            #     cannon_ball.render(gameDisplay)
+
+            #-----------------------------------
+
+            # checking if anyone is in attacking range
+            for player in platform.playerPlatoons:
+                for enemy in platform.enemyPlatoons:
+                    player.update()
+                    enemy.update()
+                    d = calcDistance(player.avg_coord[0],player.avg_coord[1],enemy.avg_coord[0],enemy.avg_coord[1])
+                    #print('distance = '+str(d))
+                    if d < 50:
+                        Attack(player,enemy)
+
+
+            # rendering the soldiers on the game screen
+            for character in platform.playerArmy:
+                character.render(gameDisplay)
+            for character in platform.enemyArmy:
+                character.render(gameDisplay)
+
+
+            # Go ahead and update the screen with what we've drawn.
+            pygame.display.update()
+            clock.tick(25)
+    
+    # # PAUSE SCREEN
+        else:
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    done = True
+
+                elif event.type == pygame.KEYDOWN:
+                    # Figure out if it was an arrow key. If so adjust speed.
+                    if event.key == pygame.K_p:
+                        is_paused = False
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
