@@ -1,4 +1,5 @@
 import pygame
+import Movement
 
 yellow = (255,255,0)
 red = (255,25,25)
@@ -97,11 +98,22 @@ class Platoon:
             self.avg_coord = self.avg_platoon_coord()
 
 
-
+# destroys the platoon with the given Platoon Number
 def destroyPlatoon(platoon):
     for member in platoon.platoon_members:
         member.health = 0
     platoon.update()
+
+# destroys all platoons in the a given radius of the destination
+def destroy(platform, destination, radius):
+    # find all platoons in the blast radius
+    for platoon in platform.playerPlatoons:
+        if Movement.calcDistance(platoon.avg_coord[0],platoon.avg_coord[1],destination[0], destination[1]) < radius:
+            destroyPlatoon(platoon)
+    for platoon in platform.enemyPlatoons:
+        if Movement.calcDistance(platoon.avg_coord[0],platoon.avg_coord[1],destination[0], destination[1]) < radius:
+            destroyPlatoon(platoon)
+
 
 
 

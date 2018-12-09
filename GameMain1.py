@@ -48,8 +48,11 @@ clock = pygame.time.Clock()
 # Identify water areas vs land areas
 island_circle = pygame.draw.circle(gameDisplay, BLACK, (703, 406), ISLAND_RADIUS, 0)
 
-# Initializing button menu
+# variables
 status = ""
+cannon_range = 400
+cannon_blast_radius = 40
+#cannon_fire = "deactive"
 
 # Defining main classes
 class Blackboard:
@@ -86,24 +89,8 @@ class GamePlatform:
         self.all_sprites_list = []
         self.playerPlatoons = []
         self.enemyPlatoons = []
+        self.activeCannonBalls=[]
 
-# Defining some game functions
-def fire_cannon(x, y, platform):
-    """ Fires a cannon based on where the mouse coordinates currently are; the left side cannon fires
-    if the cursor is to the left of XXX and the right side cannon fires if the cursor is to the right
-    of XXX"""
-
-    # Check which cannon's distance is closest to the seek point
-    cannon_1 = platform.cannon_list[0]
-    cannon_2 = platform.cannon_list[1]
-
-    distance_1 = calcDistance(cannon_1.x, cannon_1.y, x, y)
-    distance_2 = calcDistance(cannon_2.x, cannon_2.y, x, y)
-
-    if distance_1 < distance_2:  # cannon_1 is closer to the target
-        return cannon_1, distance_1  # return cannon_1 as cannon to fire from for cannon ball to seek from
-    else:  # cannon_2 is closer to the target
-        return cannon_2, distance_2  # return cannon_2 as cannont to fire from for cannon ball to seek from
 
 
 if __name__ == '__main__':
@@ -189,7 +176,7 @@ if __name__ == '__main__':
 
         #checking if cannons are in range to select color of crosshair
         pos = pygame.mouse.get_pos()
-        if not InCannonRange(platform, pos[0], pos[1], 200):
+        if not InCannonRange(platform, pos[0], pos[1], cannon_range):
             cursor_type = 'red'
         else:
             cursor_type = 'green'
@@ -243,6 +230,14 @@ if __name__ == '__main__':
                 elif event.key == pygame.K_2:
                     bb.platoon_seek_active = True
                     bb.active_platoon_seeks.append((2,pos[0],pos[1],'player'))
+                elif event.key == pygame.K_c:
+                    if InCannonRange(platform,pos[0],pos[1],cannon_range):
+                        cannon_number = selectCannon(pos[0],pos[1],platform)
+                        platform.activeCannonBalls.append(CannonBall(platform,cannon_number,(pos[0],pos[1])))
+
+
+        # Drawing to screen
+        gameDisplay.blit(background, (0, 0))
 
 
         #--------------- CREATING A MINE ------
@@ -289,14 +284,33 @@ if __name__ == '__main__':
                     platform.landmine_list.remove(mine)
                     platform.all_sprites_list.remove(mine)
 
+        for platoon in platform.enemyPlatoons:
+            for mine in platform.landmine_list:
+                d=calcDistance(mine.x, mine.y, platoon.avg_coord[0],platoon.avg_coord[1])
+                if d < 30:
+                    destroyPlatoon(platoon)
+                    platform.landmine_list.remove(mine)
+                    platform.all_sprites_list.remove(mine)
+
         #------------ /CHECKING FOR CONTACT WITH MINES--------------------
 
+        #------------ CANNON FIRING ------------------------------
+
+        if len(platform.activeCannonBalls) > 0:
+            for cannon_ball in platform.activeCannonBalls:
+                reached_dest = cannon_ball.update()
+                cannon_ball.render(gameDisplay)
+                if reached_dest:
+                    destroy(platform, cannon_ball.destination, cannon_blast_radius)
+                    platform.activeCannonBalls.remove(cannon_ball)
+
+        #------------ /CANNON FIRING ------------------------------
 
 
 
 
         # Drawing to screen
-        gameDisplay.blit(background, (0, 0))
+        #gameDisplay.blit(background, (0, 0))
 
         # displaying crosshairs
         if cursor_type == 'red':
@@ -312,13 +326,11 @@ if __name__ == '__main__':
         
         # random tests ------------------------
 
-        # testing platoon update
-        # for plat in platform.platoons:
-        #     plat.update()
-        #     print(plat.total_health)
-
-        #testing ATTACK
-        # Attack(platform.playerPlatoons[0], platform.enemyPlatoons[0])
+        # testing fire cannon
+        # platform.activeCannonBalls.append(CannonBall(platform,1))
+        # platform.activeCannonBalls.append(CannonBall(platform,2))
+        # for cannon_ball in platform.activeCannonBalls:
+        #     cannon_ball.render(gameDisplay)
 
         #-----------------------------------
 
