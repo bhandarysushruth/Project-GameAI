@@ -46,18 +46,13 @@ class Platoon:
         self.platoon_members=[]
         self.members_alive = 6
         self.total_health = 0
-        
-        #debugging
-        print('creating paltoon '+str(platoon_number))
 
         #building a platoon from the platform and platoon number
         if team == 'player':
             for member in platform.playerArmy:
                 if member.platoon == platoon_number:
 
-                    #debugging
-                    print("total_health --------------"+str(self.total_health))
-                    print("member health :"+str(member.health))
+
 
                     self.platoon_members.append(member)
                     self.total_health= self.total_health + member.health
@@ -68,8 +63,16 @@ class Platoon:
                     self.total_health+=member.health
 
         self.members_alive = len(self.platoon_members)
+        self.avg_coord = self.avg_platoon_coord()
 
-        print("platoon created. total health : "+ str(self.total_health))
+
+    def avg_platoon_coord(self):
+        sum_x=0
+        sum_y=0
+        for member in self.platoon_members:
+            sum_x+=member.x
+            sum_y+=member.y
+        return (int(sum_x/len(self.platoon_members)),int(sum_y/len(self.platoon_members)))
 
 
 
@@ -85,11 +88,13 @@ class Platoon:
             if member.health == 0:
                 member.is_dead =True
                 self.platoon_members.remove(member)
-            
-            #health_count+=member.health
+
 
         self.members_alive=len(self.platoon_members)
         self.total_health = health_count
+
+        if(len(self.platoon_members) >0):
+            self.avg_coord = self.avg_platoon_coord()
 
 
 

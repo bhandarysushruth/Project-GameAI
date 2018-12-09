@@ -84,8 +84,8 @@ class GamePlatform:
         self.playerArmy = []
         self.enemyArmy = []
         self.all_sprites_list = []
-        self.platoons = []
-
+        self.playerPlatoons = []
+        self.enemyPlatoons = []
 
 # Defining some game functions
 def fire_cannon(x, y, platform):
@@ -128,17 +128,18 @@ if __name__ == '__main__':
     # Creating Player Armies
 
     #platoon1
-    platform.playerArmy.append(Knight(480,408, 1, 'player'))
+    
     platform.playerArmy.append(Soldier(450,400, 1, 'player'))
     platform.playerArmy.append(Soldier(465,400, 1, 'player'))
-    platform.playerArmy.append(Knight(435,408, 1, 'player'))
     platform.playerArmy.append(Soldier(450,415, 1, 'player'))
     platform.playerArmy.append(Soldier(465,415, 1, 'player'))
+    platform.playerArmy.append(Knight(435,408, 1, 'player'))
+    platform.playerArmy.append(Knight(480,408, 1, 'player'))
     
     
 
     #creating a platoon object with all the members of platoon1 and adding it to platform
-    platform.platoons.append(Platoon(platform,1,'player'))
+    platform.playerPlatoons.append(Platoon(platform,1,'player'))
 
 
     #platoon 2
@@ -150,8 +151,29 @@ if __name__ == '__main__':
     platform.playerArmy.append(Soldier(965,415, 2, 'player'))
     
         
-    platform.platoons.append(Platoon(platform,2,'player'))
+    platform.playerPlatoons.append(Platoon(platform,2,'player'))
 
+
+
+    # enemy platoon 1
+    platform.enemyArmy.append(Knight(750,610, 1, 'enemy'))
+    platform.enemyArmy.append(Soldier(765,610, 1, 'enemy'))
+    platform.enemyArmy.append(Soldier(750,625, 1, 'enemy'))
+    platform.enemyArmy.append(Knight(765,625, 1, 'enemy'))
+    platform.enemyArmy.append(Soldier(735,615, 1, 'enemy'))
+    platform.enemyArmy.append(Soldier(735,630, 1, 'enemy'))
+
+    platform.enemyPlatoons.append(Platoon(platform,1,'enemy'))
+
+    #enemy platoon 2
+    platform.enemyArmy.append(Knight(600,610, 2, 'enemy'))
+    platform.enemyArmy.append(Soldier(615,610, 2, 'enemy'))
+    platform.enemyArmy.append(Soldier(600,625, 2, 'enemy'))
+    platform.enemyArmy.append(Knight(615,625, 2, 'enemy'))
+    #platform.enemyArmy.append(Soldier(585,615, 2, 'enemy'))
+    #platform.enemyArmy.append(Soldier(585,630, 2, 'enemy'))
+
+    platform.enemyPlatoons.append(Platoon(platform,2,'enemy'))
 
     #create 3 ships
     platform.ship_list.append(Ship.Ship(100, 100, 0, 10))
@@ -253,12 +275,25 @@ if __name__ == '__main__':
         #     print(plat.total_health)
 
         #testing ATTACK
-        #Attack(platform.platoons[0], platform.platoons[1])
+        # Attack(platform.playerPlatoons[0], platform.enemyPlatoons[0])
 
         #-----------------------------------
 
+        # checking if anyone is in attacking range
+        for player in platform.playerPlatoons:
+            for enemy in platform.enemyPlatoons:
+                player.update()
+                enemy.update()
+                d = calcDistance(player.avg_coord[0],player.avg_coord[1],enemy.avg_coord[0],enemy.avg_coord[1])
+                print('distance = '+str(d))
+                if d < 50:
+                    Attack(player,enemy)
+
+
         # rendering the soldiers on the game screen
         for character in platform.playerArmy:
+            character.render(gameDisplay)
+        for character in platform.enemyArmy:
             character.render(gameDisplay)
 
 
