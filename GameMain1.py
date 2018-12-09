@@ -27,7 +27,7 @@ LCANNON_IMG = pygame.image.load("lcannon.png")
 LCANNON_IMG = pygame.transform.scale(LCANNON_IMG, (64, 40))
 RCANNON_IMG = pygame.image.load("rcannon.png")
 RCANNON_IMG = pygame.transform.scale(RCANNON_IMG, (65, 42))
-background = pygame.image.load("background.png")
+background = pygame.image.load("background1.png")
 background = pygame.transform.scale(background, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 
 # Crosshair instead of cursor
@@ -231,11 +231,13 @@ if __name__ == '__main__':
                     elif event.key == pygame.K_p:
                         is_paused = True
                     elif event.key == pygame.K_1:
-                        bb.platoon_seek_active = True
-                        bb.active_platoon_seeks.append((1,pos[0],pos[1],'player'))
+                        if calcDistance(pos[0],pos[1],703,406) < ISLAND_RADIUS:
+                            bb.platoon_seek_active = True
+                            bb.active_platoon_seeks.append((1,pos[0],pos[1],'player'))
                     elif event.key == pygame.K_2:
-                        bb.platoon_seek_active = True
-                        bb.active_platoon_seeks.append((2,pos[0],pos[1],'player'))
+                        if calcDistance(pos[0],pos[1],703,406) < ISLAND_RADIUS:
+                            bb.platoon_seek_active = True
+                            bb.active_platoon_seeks.append((2,pos[0],pos[1],'player'))
                     elif event.key == pygame.K_c:
                         if InCannonRange(platform,pos[0],pos[1],cannon_range):
                             cannon_number = selectCannon(pos[0],pos[1],platform)
