@@ -34,10 +34,10 @@ background = pygame.image.load("background_1.png")
 background = pygame.transform.scale(background, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 PAUSE_IMG = pygame.image.load("pause.png")
 PAUSE_IMG = pygame.transform.scale(PAUSE_IMG, (1440, 878))
-WIN_IMG = pygame.image.load("win_img.png")
-WIN_IMG = pygame.transform.scale(WIN_IMG, (1440, 878))
-LOST_IMG = pygame.image.load("lost_img.png")
-LOST_IMG = pygame.transform.scale(LOST_IMG, (1440, 878))
+WIN_IMG = pygame.image.load("win_image.png")
+WIN_IMG = pygame.transform.scale(WIN_IMG, (350, 200))
+LOST_IMG = pygame.image.load("lost_image.png")
+LOST_IMG = pygame.transform.scale(LOST_IMG, (300, 180))
 
 
 # Crosshair instead of cursor
@@ -70,7 +70,7 @@ enemy_seek_location = (689,565)
 mine_limit = 5
 mine_count = 0
 has_won = False
-has_won = False
+has_lost = False
 
 # Defining main classes
 class Blackboard:
@@ -256,12 +256,12 @@ if __name__ == '__main__':
 
     #platoon1
     
-    platform.playerArmy.append(Soldier(450,400, 1, 'player'))
-    platform.playerArmy.append(Soldier(465,400, 1, 'player'))
-    platform.playerArmy.append(Soldier(450,415, 1, 'player'))
-    platform.playerArmy.append(Soldier(465,415, 1, 'player'))
-    platform.playerArmy.append(Knight(435,408, 1, 'player'))
-    platform.playerArmy.append(Knight(480,408, 1, 'player'))
+    platform.playerArmy.append(Soldier(525,600, 1, 'player'))
+    platform.playerArmy.append(Soldier(510,600, 1, 'player'))
+    platform.playerArmy.append(Soldier(510,615, 1, 'player'))
+    platform.playerArmy.append(Soldier(525,615, 1, 'player'))
+    platform.playerArmy.append(Knight(540,600, 1, 'player'))
+    platform.playerArmy.append(Knight(540,615, 1, 'player'))
     
     
 
@@ -270,35 +270,46 @@ if __name__ == '__main__':
 
 
     #platoon 2
-    platform.playerArmy.append(Knight(980,408, 2, 'player'))
-    platform.playerArmy.append(Soldier(950,400, 2, 'player'))
-    platform.playerArmy.append(Soldier(965,400, 2, 'player'))
-    platform.playerArmy.append(Soldier(950,415, 2, 'player'))
-    platform.playerArmy.append(Knight(935,408, 2, 'player'))
-    platform.playerArmy.append(Soldier(965,415, 2, 'player'))
+    platform.playerArmy.append(Knight(730,630, 2, 'player'))
+    platform.playerArmy.append(Soldier(715,630, 2, 'player'))
+    platform.playerArmy.append(Soldier(715,645, 2, 'player'))
+    platform.playerArmy.append(Soldier(730,645, 2, 'player'))
+    platform.playerArmy.append(Knight(745,630, 2, 'player'))
+    platform.playerArmy.append(Soldier(745,645, 2, 'player'))
     
         
     platform.playerPlatoons.append(Platoon(platform,2,'player'))
 
+    #platoon 3
+    platform.playerArmy.append(Knight(900,600, 3, 'player'))
+    platform.playerArmy.append(Soldier(900,585, 3, 'player'))
+    platform.playerArmy.append(Soldier(915,600, 3, 'player'))
+    platform.playerArmy.append(Soldier(915,585, 3, 'player'))
+    platform.playerArmy.append(Knight(930,600, 3, 'player'))
+    platform.playerArmy.append(Soldier(930,585, 3, 'player'))
+    
+        
+    platform.playerPlatoons.append(Platoon(platform,3,'player'))
+
 
 
     # enemy platoon 1
-    platform.enemyArmy.append(Knight(750,610, 1, 'enemy'))
-    platform.enemyArmy.append(Soldier(765,610, 1, 'enemy'))
-    platform.enemyArmy.append(Soldier(750,625, 1, 'enemy'))
-    platform.enemyArmy.append(Knight(765,625, 1, 'enemy'))
-    platform.enemyArmy.append(Soldier(735,615, 1, 'enemy'))
-    platform.enemyArmy.append(Soldier(735,630, 1, 'enemy'))
+    platform.enemyArmy.append(Knight(400,320, 1, 'enemy'))
+    platform.enemyArmy.append(Soldier(400,305, 1, 'enemy'))
+    platform.enemyArmy.append(Soldier(415,320, 1, 'enemy'))
+    platform.enemyArmy.append(Knight(415,305, 1, 'enemy'))
+    platform.enemyArmy.append(Soldier(385,320, 1, 'enemy'))
+    platform.enemyArmy.append(Soldier(385,305, 1, 'enemy'))
 
     platform.enemyPlatoons.append(Platoon(platform,1,'enemy'))
 
     #enemy platoon 2
-    platform.enemyArmy.append(Knight(600,610, 2, 'enemy'))
-    platform.enemyArmy.append(Soldier(615,610, 2, 'enemy'))
-    platform.enemyArmy.append(Soldier(600,625, 2, 'enemy'))
-    platform.enemyArmy.append(Knight(615,625, 2, 'enemy'))
-    #platform.enemyArmy.append(Soldier(585,615, 2, 'enemy'))
-    #platform.enemyArmy.append(Soldier(585,630, 2, 'enemy'))
+    platform.enemyArmy.append(Knight(900,345, 2, 'enemy'))
+    platform.enemyArmy.append(Soldier(900,320, 2, 'enemy'))
+    platform.enemyArmy.append(Soldier(915,345, 2, 'enemy'))
+    platform.enemyArmy.append(Knight(915,320, 2, 'enemy'))
+    platform.enemyArmy.append(Soldier(930,345, 2, 'enemy'))
+    platform.enemyArmy.append(Soldier(930,320, 2, 'enemy'))
 
     platform.enemyPlatoons.append(Platoon(platform,2,'enemy'))
 
@@ -512,6 +523,18 @@ if __name__ == '__main__':
 
                             bb.platoon_seek_active = True
                             bb.active_platoon_seeks.append((2,pos[0],pos[1],'player', inland_path))
+
+                    elif event.key == pygame.K_3:
+                        if calcDistance(pos[0],pos[1],703,406) < ISLAND_RADIUS:
+                            #calculating path
+                            closest_dest_node_num = Path.closest_node(platform,pos[0],pos[1])
+                            platoon_x = platform.playerPlatoons[2].avg_coord[0]
+                            platoon_y = platform.playerPlatoons[2].avg_coord[1]
+                            inland_path = find_route([platoon_x,platoon_y], closest_dest_node_num, platform.island_nodes)
+
+
+                            bb.platoon_seek_active = True
+                            bb.active_platoon_seeks.append((3,pos[0],pos[1],'player', inland_path))
                    
                     elif event.key == pygame.K_c:
                         if cannon_count <=cannon_limit:
@@ -690,8 +713,7 @@ if __name__ == '__main__':
 
             # --- Checking if anyone has won or lost the game
             gate_target = pygame.Rect(661, 525, 60,60)
-            goal_target = pygame.Rect(platform.goal.rect.x, platform.goal.rect.y, platform.goal.offset,
-                                      platform.goal.offset)
+            goal_target = pygame.Rect(platform.goal.rect.x, platform.goal.rect.y, 70,170)
             total_enemies_remaining = 0
             for platoon in platform.enemyPlatoons:
                 # Get the number of enemies remaining
@@ -699,12 +721,14 @@ if __name__ == '__main__':
 
                 # Check how many enemies are at the gate
                 if gate_target.collidepoint(platoon.avg_coord[0], platoon.avg_coord[1]):
-                    print("collision with door")
+                    #print("collision with door")
                     # Check how many soldiers are in this platoon
                     if platoon.members_alive >= 5:
                         # The gate is destroyed
-                        print("drop gate")
+                        #print("drop gate")
                         platform.all_sprites_list.remove(platform.gate)
+                        has_lost = True
+                        is_paused = True
 
                 # Check how many enemies are at the goal
                 if platform.goal.rect.collidepoint(pos):
@@ -724,24 +748,29 @@ if __name__ == '__main__':
     
     # # PAUSE SCREEN
         else:
+            # if has_won and is_paused:
+            #     gameDisplay.blit(WIN_IMG,(0,0))
+            #     pygame.display.update()
+            # elif has_lost:
+            #     gameDisplay.blit(PAUSE_IMG,(0,0))
+            #     pygame.display.update()
+            # else:
             if has_won:
-                gameDisplay.blit(LOST_IMG,(0,0))
-                pygame.display.flip()
+                gameDisplay.blit(WIN_IMG,(500,325))
             elif has_lost:
-                gameDisplay.blit(WIN_IMG,(0,0))
-                pygame.display.flip()
+                gameDisplay.blit(LOST_IMG,(500,325))
             else:
                 gameDisplay.blit(PAUSE_IMG,(0,0))
-                pygame.display.flip()
-                
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        done = True
+            pygame.display.update()
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    done = True
 
-                    elif event.type == pygame.KEYDOWN:
-                        # Figure out if it was an arrow key. If so adjust speed.
-                        if event.key == pygame.K_p:
-                            is_paused = False
+                elif event.type == pygame.KEYDOWN:
+                    # Figure out if it was an arrow key. If so adjust speed.
+                    if event.key == pygame.K_p:
+                        is_paused = False
 
 
 
