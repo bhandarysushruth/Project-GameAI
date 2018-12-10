@@ -54,6 +54,7 @@ status = ""
 cannon_range = 400
 cannon_blast_radius = 40
 is_paused = False
+enemy_seek_location = (722,214)
 
 # Defining main classes
 class Blackboard:
@@ -61,6 +62,7 @@ class Blackboard:
     def __init__(self, platform):
         self.platform = platform
         self.platoon_seek_active = False
+        self.enemy_platoon_seek_active = False
         #contains a list of all the active platoon_seeks
         #each entry in the list is a set which contains the platoon number, target cordinates, team, path
         #for example, if you want the player platoon number 1 to move to (100,100), you do
@@ -68,6 +70,7 @@ class Blackboard:
         #the path is calculated by the find route function to make sure that 
         # if the the seek is on the other side of the wall, it circumnavigates the walls
         self.active_platoon_seeks = []
+        self.enemy_active_platoon_seeks = []
     
     def update(self):
         if self.platoon_seek_active:
@@ -83,6 +86,21 @@ class Blackboard:
 
             if len(self.active_platoon_seeks) == 0:
                 platoon_seek_active = False
+    
+    def updateEnemy(self):
+        if self.enemy_platoon_seek_active:
+            for seeks in self.enemy_active_platoon_seeks:
+                if len(seeks[4]) > 0:
+                    seek_done = platoon_seek(self.platform, seeks[0], seeks[4][0].point.x, seeks[4][0].point.y, seeks[3])
+                    if seek_done:
+                        del seeks[4][0]
+                else:
+                    seek_done = platoon_seek(self.platform, seeks[0], seeks[1], seeks[2], seeks[3])
+                    if seek_done:
+                        self.enemy_active_platoon_seeks.remove(seeks)
+
+            if len(self.enemy_active_platoon_seeks) == 0:
+                platoon_seek_active = False    
 
 class GamePlatform:
 
@@ -259,6 +277,8 @@ if __name__ == '__main__':
 
 
 
+
+
     disembark0 = [(350,450),(350,435),(350,415),(365,450),(365,435),(365,415)]
     disembark1 = [(850, 660),(865, 660),(880, 660),(850, 645),(865, 645),(880, 645)]
     disembark2 = [(1020, 305),(1005, 305),(990, 305),(1020, 330),(1005, 330),(990, 330)]
@@ -363,6 +383,24 @@ if __name__ == '__main__':
 
     pos = pygame.mouse.get_pos()
 
+
+    #---------------- ENEMY PLATOONS SEEKING DOOR ------------------------
+    #finding the closest node to door. (Right now seeking a random coord at (722,214))
+    closest_enemy_dest_node = Path.closest_node(platform, enemy_seek_location[0], enemy_seek_location[1])
+
+    for plat in platform.enemyPlatoons:
+        plat_x = plat.avg_coord[0]
+        plat_y = plat.avg_coord[1]
+        land_path = find_route([plat_x,plat_y], closest_enemy_dest_node, platform.island_nodes)
+
+        bb.enemy_platoon_seek_active = True
+        bb.enemy_active_platoon_seeks.append((plat.platoon_number,enemy_seek_location[0], enemy_seek_location[1], 'enemy', land_path))
+
+
+    #---------------- //ENEMY PLATOONS SEEKING DOOR ------------------------
+
+
+
     # --- GAME LOOP --- #
     
     while not done:
@@ -455,6 +493,7 @@ if __name__ == '__main__':
             gameDisplay.blit(background, (0, 0))
 
 
+
             #--------------- CREATING A MINE ------
 
             if status == "Create Mine":
@@ -541,10 +580,31 @@ if __name__ == '__main__':
                 ship.updateShip(platform)
                 if ship.is_destroyed:
                     platform.ship_list.remove(ship)
+                elif ship.reached_pier:
+                    platform.ship_list.remove(ship)
+
+                    #making the disembarked platoon move towards the door
+                    plat = platform.enemyPlatoons[-1]
+                    plat_x = plat.avg_coord[0]
+                    plat_y = plat.avg_coord[1]
+                    land_path = find_route([plat_x,plat_y], closest_enemy_dest_node, platform.island_nodes)
+                    bb.enemy_platoon_seek_active = True
+                    bb.enemy_active_platoon_seeks.append((plat.platoon_number,enemy_seek_location[0], enemy_seek_location[1], 'enemy', land_path))
+
+
                 else:
                     ship.render(gameDisplay)
 
             #------------ /SHIP MOVEMENTS ------------------------------
+
+    # for plat in platform.enemyPlatoons:
+    #     plat_x = plat.avg_coord[0]
+    #     plat_y = plat.avg_coord[1]
+    #     land_path = find_route([plat_x,plat_y], closest_enemy_dest_node, platform.island_nodes)
+
+    #     bb.enemy_platoon_seek_active = True
+    #     bb.enemy_active_platoon_seeks.append((plat.platoon_number,enemy_seek_location[0], enemy_seek_location[1], 'enemy', land_path))
+
 
 
 
@@ -560,6 +620,7 @@ if __name__ == '__main__':
                 gameDisplay.blit(pointerImgGreen, pointerImgGreen_rect)
 
             bb.update()
+            bb.updateEnemy()
             platform.all_sprites_list.update()
             platform.all_sprites_list.draw(gameDisplay)
             
