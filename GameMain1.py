@@ -62,17 +62,24 @@ class Blackboard:
         self.platform = platform
         self.platoon_seek_active = False
         #contains a list of all the active platoon_seeks
-        #each entry in the list is a set which contains the platoon number, target cordinates, team
+        #each entry in the list is a set which contains the platoon number, target cordinates, team, path
         #for example, if you want the player platoon number 1 to move to (100,100), you do
-        # active_platoon_seeks.append((1, 100, 100, 'player'))
+        # active_platoon_seeks.append((1, 100, 100, 'player', path_list))
+        #the path is calculated by the find route function to make sure that 
+        # if the the seek is on the other side of the wall, it circumnavigates the walls
         self.active_platoon_seeks = []
     
     def update(self):
         if self.platoon_seek_active:
             for seeks in self.active_platoon_seeks:
-                seek_done = platoon_seek(self.platform, seeks[0], seeks[1], seeks[2], seeks[3])
-                if seek_done:
-                    self.active_platoon_seeks.remove(seeks)
+                if len(seeks[4]) > 0:
+                    seek_done = platoon_seek(self.platform, seeks[0], seeks[4][0].point.x, seeks[4][0].point.y, seeks[3])
+                    if seek_done:
+                        del seeks[4][0]
+                else:
+                    seek_done = platoon_seek(self.platform, seeks[0], seeks[1], seeks[2], seeks[3])
+                    if seek_done:
+                        self.active_platoon_seeks.remove(seeks)
 
             if len(self.active_platoon_seeks) == 0:
                 platoon_seek_active = False
@@ -337,17 +344,20 @@ if __name__ == '__main__':
     #     platform.all_sprites_list.add(ship)
 
     # --- Determine routes for soldiers once they reach the island
-    platform.island_nodes.append(Path.Node(0, Path.Point(466, 348)))
-    platform.island_nodes.append(Path.Node(1, Path.Point(630, 239)))
-    platform.island_nodes.append(Path.Node(2, Path.Point(805, 259)))
-    platform.island_nodes.append(Path.Node(3, Path.Point(916, 484)))
-    platform.island_nodes.append(Path.Node(4, Path.Point(800, 579)))
-    platform.island_nodes.append(Path.Node(5, Path.Point(555, 560)))
+    platform.island_nodes.append(Path.Node(0, Path.Point(410, 348)))
+    platform.island_nodes.append(Path.Node(1, Path.Point(630, 200)))
+    platform.island_nodes.append(Path.Node(2, Path.Point(805, 220)))
+    platform.island_nodes.append(Path.Node(3, Path.Point(935, 484)))
+    platform.island_nodes.append(Path.Node(4, Path.Point(800, 590)))
+    platform.island_nodes.append(Path.Node(5, Path.Point(530, 580)))
     # ex_pos1 = [355, 418]
-    ex_pos1 = [875, 682]
+    ex_pos1 = [435, 607]
     # onepath = find_route(ex_pos1, 4, platform.island_nodes)
-    onepath = find_route(ex_pos1, 2, platform.island_nodes)
-    print(onepath)
+    onepath = find_route(ex_pos1, 3, platform.island_nodes)
+
+    print("testing island nodes")
+    for n in onepath:
+        print(n.number)
 
 
 
@@ -411,14 +421,30 @@ if __name__ == '__main__':
                         status = "None"
                     elif event.key == pygame.K_p:
                         is_paused = True
+
                     elif event.key == pygame.K_1:
                         if calcDistance(pos[0],pos[1],703,406) < ISLAND_RADIUS:
+                            #calculating path
+                            closest_dest_node_num = Path.closest_node(platform,pos[0],pos[1])
+                            platoon_x = platform.playerPlatoons[0].avg_coord[0]
+                            platoon_y = platform.playerPlatoons[0].avg_coord[1]
+                            inland_path = find_route([platoon_x,platoon_y], closest_dest_node_num, platform.island_nodes)
+
+                            #implementing seek
                             bb.platoon_seek_active = True
-                            bb.active_platoon_seeks.append((1,pos[0],pos[1],'player'))
+                            bb.active_platoon_seeks.append((1,pos[0],pos[1],'player',inland_path))
+                    
                     elif event.key == pygame.K_2:
                         if calcDistance(pos[0],pos[1],703,406) < ISLAND_RADIUS:
+                            #calculating path
+                            closest_dest_node_num = Path.closest_node(platform,pos[0],pos[1])
+                            platoon_x = platform.playerPlatoons[1].avg_coord[0]
+                            platoon_y = platform.playerPlatoons[1].avg_coord[1]
+                            inland_path = find_route([platoon_x,platoon_y], closest_dest_node_num, platform.island_nodes)
+
+
                             bb.platoon_seek_active = True
-                            bb.active_platoon_seeks.append((2,pos[0],pos[1],'player'))
+                            bb.active_platoon_seeks.append((2,pos[0],pos[1],'player', inland_path))
                     elif event.key == pygame.K_c:
                         if InCannonRange(platform,pos[0],pos[1],cannon_range):
                             cannon_number = selectCannon(pos[0],pos[1],platform)

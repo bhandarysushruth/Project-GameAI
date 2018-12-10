@@ -1,6 +1,8 @@
 import pygame
 import math
 from Army import *
+import Path
+
 
 def calcDistance(x1,y1,x2,y2):
     val = (x2-x1)**2
@@ -83,7 +85,6 @@ def object_seek(target, player, vel):
 
 #platoon seek is a seek for the entire platoon
 #The entire platoon moves towards the target object at (seek_x, seek_y)
-
 def platoon_seek(platform, platoon_number, seek_x, seek_y, team):
 
     i = 0
@@ -106,15 +107,12 @@ def platoon_seek(platform, platoon_number, seek_x, seek_y, team):
 
     elif team == 'enemy':
 
-        for character in platform.playerArmy:
+        for character in platform.enemyArmy:
             if character.platoon == platoon_number:
                 done = object_seek(Soldier(positions[i][0], positions[i][1], 1, 'player'), character, 5)
                 i+=1
 
     return done
-
-
-
 
 
 

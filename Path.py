@@ -52,3 +52,30 @@ class Path:
         for node in shortestpath:
             self.path.append(node.point)
 
+# finds the island_node closest to (x,y)
+# returns the closest node number
+def closest_node(platform, x, y):
+    min_dist = 3000
+    min_node = None
+
+    for node in platform.island_nodes:
+        d = Movement.calcDistance(x, y, node.point.x, node.point.y)
+        # print(str(d)+" "+str(node.number))
+        if d<min_dist:
+            min_node = node
+            min_dist = d
+
+    return min_node.number
+
+
+
+
+
+
+
+
+
+
+
+
+
