@@ -34,6 +34,10 @@ background = pygame.image.load("background_1.png")
 background = pygame.transform.scale(background, (DISPLAY_WIDTH, DISPLAY_HEIGHT))
 PAUSE_IMG = pygame.image.load("pause.png")
 PAUSE_IMG = pygame.transform.scale(PAUSE_IMG, (1440, 878))
+WIN_IMG = pygame.image.load("win_img.png")
+WIN_IMG = pygame.transform.scale(WIN_IMG, (1440, 878))
+LOST_IMG = pygame.image.load("lost_img.png")
+LOST_IMG = pygame.transform.scale(LOST_IMG, (1440, 878))
 
 
 # Crosshair instead of cursor
@@ -709,27 +713,35 @@ if __name__ == '__main__':
                         has_lost = True
                         # The player loses
                         print("You lose!")
+                        is_paused =True
 
 
             if total_enemies_remaining <= 0:
                 has_won = True
                 # The player wins
                 print("You win!")
+                is_paused = True
     
     # # PAUSE SCREEN
         else:
+            if has_won:
+                gameDisplay.blit(LOST_IMG,(0,0))
+                pygame.display.flip()
+            elif has_lost:
+                gameDisplay.blit(WIN_IMG,(0,0))
+                pygame.display.flip()
+            else:
+                gameDisplay.blit(PAUSE_IMG,(0,0))
+                pygame.display.flip()
+                
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        done = True
 
-            gameDisplay.blit(PAUSE_IMG,(0,0))
-            pygame.display.flip()
-            
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    done = True
-
-                elif event.type == pygame.KEYDOWN:
-                    # Figure out if it was an arrow key. If so adjust speed.
-                    if event.key == pygame.K_p:
-                        is_paused = False
+                    elif event.type == pygame.KEYDOWN:
+                        # Figure out if it was an arrow key. If so adjust speed.
+                        if event.key == pygame.K_p:
+                            is_paused = False
 
 
 
