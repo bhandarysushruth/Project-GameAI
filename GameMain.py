@@ -318,11 +318,11 @@ if __name__ == '__main__':
     # path_3_object = Path.Path().createpath(result_path_3)
 
     # Create 3 ships
-    platform.ship_list.append(Ship.Ship(100, 100, 0, 10, platform.ship_paths))
-    platform.ship_list.append(Ship.Ship(100, 100, 0, 10, platform.ship_paths))
-    platform.ship_list.append(Ship.Ship(100, 100, 0, 10, platform.ship_paths))
-    for ship in platform.ship_list:
-        platform.all_sprites_list.add(ship)
+    # platform.ship_list.append(Ship.Ship(100, 100, 0, 10, platform.ship_paths))
+    # platform.ship_list.append(Ship.Ship(100, 100, 0, 10, platform.ship_paths))
+    # platform.ship_list.append(Ship.Ship(100, 100, 0, 10, platform.ship_paths))
+    # for ship in platform.ship_list:
+    #     platform.all_sprites_list.add(ship)
 
     # --- Determine routes for soldiers once they reach the island
     platform.island_nodes.append(Path.Node(0, Path.Point(466, 348)))
