@@ -668,6 +668,9 @@ if __name__ == '__main__':
     # # PAUSE SCREEN
         else:
 
+            gameDisplay.blit(PAUSE_IMG,(0,0))
+            pygame.display.flip()
+            
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     done = True
