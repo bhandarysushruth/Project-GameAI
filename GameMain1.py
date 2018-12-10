@@ -53,8 +53,12 @@ island_circle = pygame.draw.circle(gameDisplay, BLACK, (703, 406), ISLAND_RADIUS
 status = ""
 cannon_range = 400
 cannon_blast_radius = 40
+cannon_count = 0
+cannon_limit = 10
 is_paused = False
 enemy_seek_location = (722,214)
+mine_limit = 5
+mine_count = 0
 
 # Defining main classes
 class Blackboard:
@@ -448,7 +452,9 @@ if __name__ == '__main__':
                 elif event.type == pygame.KEYDOWN:
                     # Figure out if it was an arrow key. If so adjust speed.
                     if event.key == pygame.K_m:
-                        status = "Create Mine"
+                        mine_count+=1
+                        if mine_count <= mine_limit:
+                            status = "Create Mine"
                     # if event.key == pygame.K_l:
                     #     status = "Create Land Mine"
                     # elif event.key == pygame.K_a:
@@ -483,10 +489,13 @@ if __name__ == '__main__':
 
                             bb.platoon_seek_active = True
                             bb.active_platoon_seeks.append((2,pos[0],pos[1],'player', inland_path))
+                   
                     elif event.key == pygame.K_c:
-                        if InCannonRange(platform,pos[0],pos[1],cannon_range):
-                            cannon_number = selectCannon(pos[0],pos[1],platform)
-                            platform.activeCannonBalls.append(CannonBall(platform,cannon_number,(pos[0],pos[1])))
+                        if cannon_count <=cannon_limit:
+                            if InCannonRange(platform,pos[0],pos[1],cannon_range):
+                                cannon_count+=1
+                                cannon_number = selectCannon(pos[0],pos[1],platform)
+                                platform.activeCannonBalls.append(CannonBall(platform,cannon_number,(pos[0],pos[1])))
 
 
             # Drawing to screen
