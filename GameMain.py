@@ -212,7 +212,7 @@ if __name__ == '__main__':
     platform.gate = Door.Door(661, 525)
     platform.all_sprites_list.add(platform.gate)
     # Create goal for enemies
-    platform.goal = Goal.Goal(711, 444, 10, 10)
+    platform.goal = Goal.Goal(711, 444)
 
     # --- Creating Player Armies
 
@@ -442,32 +442,47 @@ if __name__ == '__main__':
                 if d < 50:
                     Attack(player,enemy)
 
-        # Check if an enemy soldier is at the gate or the goal
-        for platoon in platform.enemyPlatoons:
-            for enemy in platoon:
-                # Get the position of the enemy player
-                pos = [enemy.x, enemy.y]
-
-                # Check if this enemy is at the gate
-                if platform.gate.rect.collidepoint(pos):
-                    platform.gate.tagged = platform.gate.tagged + 1
-
-                    #
-
-                # Checking enemies at the goal
-                if platform.goal.rect.collidepoint(pos):
-                    platform.goal.tagged = platform.goal.tagged + 1
-
-                    # If 5 enemies have reached the goal, the game is over
-
-
         # rendering the soldiers on the game screen
         for character in platform.playerArmy:
             character.render(gameDisplay)
         for character in platform.enemyArmy:
             character.render(gameDisplay)
 
-
         # Go ahead and update the screen with what we've drawn.
         pygame.display.update()
+
+        # --- Checking if anyone has won or lost the game
+        gate_target = pygame.Rect(platform.gate.rect.x, platform.gate.rect.y, platform.gate.offset,
+                                  platform.gate.offset)
+        goal_target = pygame.Rect(platform.goal.rect.x, platform.goal.rect.y, platform.goal.offset,
+                                  platform.goal.offset)
+        total_enemies_remaining = 0
+        for platoon in platform.enemyPlatoons:
+            # Get the number of enemies remaining
+            total_enemies_remaining += platoon.members_alive
+
+            # Check how many enemies are at the gate
+            if gate_target.collidepoint(platoon.avg_coord[0], platoon.avg_coord[1]):
+                # Check how many soldiers are in this platoon
+                if platoon.members_alive >= 5:
+                    # The gate is destroyed
+                    del platform.gate
+
+            # Check how many enemies are at the goal
+            if platform.goal.rect.collidepoint(pos):
+                # Check how many soldiers are in this platoon
+                if platoon.members_alive >= 5:
+                    done = True
+                    # The player loses
+                    print("You lose!")
+
+        if total_enemies_remaining <= 0:
+            done = True
+            # The player wins
+            print("You win!")
+
+
+        # Check if the player has won the game
+
+
         clock.tick(25)
