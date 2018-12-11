@@ -5,7 +5,7 @@ HEIGHT = 30
 
 class Goal:
     """ Represents the touch point by the castle that the enemy soldiers need to get to to win """
-    offset = WIDTH + 20
+    offset = WIDTH + 30
 
     def __init__(self, x, y):
         self.x = x
