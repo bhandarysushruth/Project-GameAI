@@ -63,8 +63,9 @@ class Ship:
                     self.disembark(platform)
 
     def render(self, gameDisplay):
-        # pygame.draw.circle(gameDisplay, WHITE,(self.x, self.y), 7)
+#         pygame.draw.circle(gameDisplay, WHITE,(self.x, self.y), 7)
         gameDisplay.blit(SHIP_IMG, (self.x, self.y))
+
 
     def disembark(self,platform):
         print("disembarking")
